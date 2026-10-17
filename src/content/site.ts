@@ -274,10 +274,10 @@ export const projects: Project[] = [
 ];
 
 export const stats = [
-  { value: "30", label: "Años en el oficio" },
-  { value: "3.ª", label: "Generación" },
-  { value: "VCP", label: "Villa Carlos Paz" },
-  { value: "CBA", label: "Córdoba y la región" },
+  { value: 375, suffix: "+", label: "Proyectos completados" },
+  { value: 30, suffix: "", label: "Años en el oficio" },
+  { value: 5, suffix: "m+", label: "m³ de tierra movida" },
+  { value: 80, suffix: "%", label: "Clientes que vuelven" },
 ];
 
 export const team: { name: string; role: string; image: string }[] = [];

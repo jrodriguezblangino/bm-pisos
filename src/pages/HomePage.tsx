@@ -142,23 +142,21 @@ function CareerStack() {
   );
 }
 
-function StatValue({ value }: { value: string }) {
+function StatValue({ value, suffix }: { value: number; suffix: string }) {
   const ref = useRef<HTMLElement>(null);
-  const numeric = /^(\d+)(.*)$/.exec(value);
-  const [progress, setProgress] = useState(1);
+  const [shown, setShown] = useState(value);
 
   useLayoutEffect(() => {
     const node = ref.current;
     if (!node) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    setProgress(0);
+    setShown(0);
     let frame = 0;
     let timer = 0;
-    const duration = 2000;
     const tick = (start: number) => {
-      const next = Math.min(1, (performance.now() - start) / duration);
-      setProgress(next);
-      if (next < 1) frame = window.requestAnimationFrame(() => tick(start));
+      const progress = Math.min(1, (performance.now() - start) / 2000);
+      setShown(Math.round(value * progress));
+      if (progress < 1) frame = window.requestAnimationFrame(() => tick(start));
     };
     const observer = new IntersectionObserver(
       (entries) => {
@@ -174,26 +172,12 @@ function StatValue({ value }: { value: string }) {
       window.clearTimeout(timer);
       window.cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [value]);
 
-  if (!numeric) {
-    const shown = Math.ceil(progress * value.length);
-    return (
-      <dt ref={ref} className="font-heading text-[2.5rem] font-semibold uppercase leading-none min-[992px]:text-[3rem]">
-        {value.split("").map((char, index) => (
-          <span key={`${char}-${index}`} style={{ opacity: index < shown ? 1 : 0 }}>
-            {char}
-          </span>
-        ))}
-      </dt>
-    );
-  }
-
-  const counted = Math.round(Number(numeric[1]) * progress);
   return (
-    <dt ref={ref} className="font-heading text-[2.5rem] font-semibold uppercase leading-none min-[992px]:text-[3rem]">
-      {counted}
-      {numeric[2]}
+    <dt ref={ref} className="flex font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] min-[992px]:text-[3rem]">
+      <span>{shown}</span>
+      {suffix ? <span>{suffix}</span> : null}
     </dt>
   );
 }
@@ -710,11 +694,11 @@ export function HomePage() {
               </div>
             </div>
           </div>
-          <dl className="scroll-fade scroll-fade-late mt-12 flex flex-wrap gap-x-10 gap-y-8 min-[992px]:mt-16 min-[992px]:w-[calc(100%-18.5rem-3.1875rem)] min-[992px]:flex-nowrap min-[992px]:justify-between">
+          <dl className="scroll-fade scroll-fade-late mt-12 flex flex-wrap items-center gap-x-[5.5rem] gap-y-6 min-[992px]:mt-16 min-[992px]:w-[calc(100%-18.5rem-3.1875rem)] min-[992px]:flex-nowrap">
             {stats.map((stat) => (
-              <div key={stat.label}>
-                <StatValue value={stat.value} />
-                <dd className="mt-1 text-base leading-6">{stat.label}</dd>
+              <div key={stat.label} className="flex flex-col items-start gap-2">
+                <StatValue value={stat.value} suffix={stat.suffix} />
+                <dd className="text-[1.25rem] leading-[1.5]">{stat.label}</dd>
               </div>
             ))}
           </dl>
