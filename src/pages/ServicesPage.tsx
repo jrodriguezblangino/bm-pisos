@@ -1,95 +1,195 @@
 import { FormEvent, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Button } from "../components/Button";
-import { additionalServices, principles, projects, services } from "../content/site";
+import { Link, useSearchParams } from "react-router-dom";
+import { Button, SlideLabel } from "../components/Button";
+import { ClosingBand } from "../components/ClosingBand";
+import { additionalServices, assets, brand, imageCredit, projects, services, values } from "../content/site";
+
+const serviceTabs = [
+  ...services,
+  {
+    slug: "adicionales",
+    index: "05",
+    title: "También entra en el oficio",
+    summary: "Trabajos que acompañan el piso cuando la obra los pide, siempre confirmados caso por caso.",
+    image: assets.yard,
+    imageAlt: imageCredit,
+  },
+];
+
+const pillars = [
+  {
+    index: "01",
+    title: "Claridad",
+    body: "Uso, tránsito y plazos se hablan al principio, para no corregir el hormigón cuando ya está puesto.",
+  },
+  {
+    index: "02",
+    title: "Control",
+    body: "La obra se coordina con el resto de los gremios. El piso entra cuando el frente está listo para recibirlo.",
+  },
+  {
+    index: "03",
+    title: "Confianza",
+    body: "Treinta años en el oficio alcanzan para decir qué se puede afirmar y qué hay que preguntar todavía.",
+  },
+];
 
 export function ServicesPage() {
   const [params, setParams] = useSearchParams();
   const initial = params.get("tab") ?? "industrial";
-  const active = services.find((service) => service.slug === initial) ?? services[0];
+  const active = serviceTabs.find((service) => service.slug === initial) ?? serviceTabs[0];
 
   return (
-    <div className="bg-tan pt-28 md:pt-36">
-      <section className="mx-auto max-w-[1360px] px-5 pb-16 md:px-8" aria-labelledby="services-heading">
-        <p className="font-mono text-[13px] uppercase tracking-[0.14em] text-orange">Servicios</p>
-        <h1 id="services-heading" className="mt-4 max-w-[14em] font-heading text-[3rem] uppercase leading-[0.95] md:text-[5rem]">
-          Pisos de hormigón para el uso que va a tener la obra.
-        </h1>
-        <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {services.map((service) => (
-            <button
-              key={service.slug}
-              type="button"
-              onClick={() => setParams({ tab: service.slug })}
-              className={`rounded-[12px] px-4 py-4 text-left font-heading uppercase ${
-                active.slug === service.slug ? "bg-blue text-tan" : "bg-dark-tan text-ink"
-              }`}
-              aria-pressed={active.slug === service.slug}
-            >
-              <span className="block font-mono text-[12px] normal-case tracking-[0.12em]">[ {service.index}/04 ]</span>
-              {service.title}
-            </button>
-          ))}
+    <div className="bg-tan">
+      <section className="page-hero" data-page-hero aria-labelledby="services-heading">
+        <img src={assets.pour} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-black/45" />
+        <div className="relative mx-auto flex h-dvh w-full max-w-[1360px] flex-col justify-end px-4 pb-24 md:px-6 lg:px-0 lg:pb-40">
+          <h1 id="services-heading" className="page-display max-w-[11em]">
+            Donde arranca el piso.
+          </h1>
+          <p className="page-kicker mt-6 max-w-[40rem]">
+            Hormigón alisado para industria, comercio y depósitos, con planificación, oficio y un resultado que se puede prever.
+          </p>
         </div>
-        <article className="mt-8 grid items-center gap-8 overflow-hidden rounded-[18px] bg-dark-tan lg:grid-cols-2">
-          <img src={active.image} alt={active.imageAlt} className="h-full min-h-[320px] w-full object-cover" />
-          <div className="p-6 md:p-10">
-            <h2 className="font-heading text-[3rem] uppercase">{active.title}</h2>
-            <p className="mt-4 max-w-md text-[18px]">{active.summary}</p>
-            <Button href="/contact" className="mt-8">
-              Consultar
-            </Button>
+      </section>
+
+      <section className="bg-tan" aria-labelledby="service-panel-heading">
+        <div className="mx-auto w-full max-w-[1360px] px-4 pb-24 pt-28 md:px-6 lg:px-0">
+          <div className="service-tabs" role="tablist" aria-label="Servicios">
+            {serviceTabs.map((service) => {
+              const selected = service.slug === active.slug;
+              return (
+                <button
+                  key={service.slug}
+                  type="button"
+                  role="tab"
+                  id={`tab-${service.slug}`}
+                  aria-selected={selected}
+                  aria-controls="service-panel"
+                  className={`service-tab focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue ${selected ? "is-active" : ""}`}
+                  onClick={() => setParams({ tab: service.slug })}
+                >
+                  {service.index} {service.title}
+                </button>
+              );
+            })}
           </div>
-        </article>
+          <article
+            id="service-panel"
+            role="tabpanel"
+            aria-labelledby={`tab-${active.slug}`}
+            key={active.slug}
+            className="tab-panel mt-16 grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_39.5rem]"
+          >
+            <div>
+              <p className="font-mono text-base tracking-[0.36em] text-[#898b8d]">[ {active.index}/05 ]</p>
+              <h2 id="service-panel-heading" className="mt-4 font-heading text-[2rem] font-semibold uppercase leading-[1.2] md:text-[3rem]">
+                {active.title}
+              </h2>
+              <p className="mt-5 max-w-xl text-xl leading-[1.5]">{active.summary}</p>
+              {active.slug === "adicionales" && (
+                <ul className="mt-6 max-w-xl space-y-3">
+                  {additionalServices.map((item) => (
+                    <li key={item} className="border-b border-line pb-3 font-heading text-xl uppercase">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <Button href="/contact" className="group mt-8">
+                <SlideLabel>Consultar</SlideLabel>
+              </Button>
+            </div>
+            <img src={active.image} alt={active.imageAlt} className="h-[24rem] w-full object-cover lg:h-[37.5rem]" />
+          </article>
+        </div>
       </section>
 
-      <section className="mx-auto max-w-[1360px] px-5 py-16 md:px-8" aria-labelledby="additional-heading">
-        <h2 id="additional-heading" className="font-heading text-[2rem] uppercase">
-          También entra en el oficio
-        </h2>
-        <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {additionalServices.map((item, index) => (
-            <li key={item} className="border-b border-line py-4 font-heading text-[20px] uppercase">
-              <span className="mr-3 font-mono text-[12px] text-grey">{String(index + 1).padStart(2, "0")}</span>
-              {item}
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="bg-ink py-20 text-tan" aria-labelledby="principles-heading">
-        <div className="mx-auto grid max-w-[1360px] gap-10 px-5 md:px-8 lg:grid-cols-[0.8fr_1.2fr]">
-          <h2 id="principles-heading" className="font-heading text-[2.6rem] uppercase leading-[1.02]">
-            Lo que se puede afirmar hoy
+      <section className="bg-tan pb-28" aria-labelledby="pillars-heading">
+        <div className="mx-auto w-full max-w-[1360px] px-4 md:px-6 lg:px-0">
+          <h2 id="pillars-heading" className="scroll-fade max-w-[16em] font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] lg:text-[4rem]">
+            Para obras que no pueden fallar el piso.
           </h2>
-          <div className="grid gap-8 md:grid-cols-3">
-            {principles.map((item) => (
-              <article key={item.title}>
-                <h3 className="font-heading text-[22px] uppercase">{item.title}</h3>
-                <p className="mt-3 text-[16px] text-tan/85">{item.body}</p>
+          <div className="mt-20 grid gap-12 md:grid-cols-3 md:gap-16">
+            {pillars.map((item) => (
+              <article key={item.index} className="scroll-fade">
+                <p className="font-mono text-base tracking-[0.36em] text-[#898b8d]">[ {item.index} ]</p>
+                <h3 className="mt-4 font-heading text-[2rem] font-semibold uppercase leading-[1.2]">{item.title}</h3>
+                <p className="mt-4 text-xl leading-[1.5]">{item.body}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1360px] px-5 py-20 md:px-8" aria-labelledby="service-projects-heading">
-        <h2 id="service-projects-heading" className="font-heading text-[2.4rem] uppercase">
-          Tipos de obra
+      <section className="relative h-dvh text-tan" aria-labelledby="expertise-heading">
+        <video className="absolute inset-0 h-full w-full object-cover" autoPlay muted loop playsInline poster={assets.hero}>
+          <source src={assets.heroVideo} type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-black/50" />
+        <h2
+          id="expertise-heading"
+          className="scroll-fade relative z-10 mx-auto flex h-full max-w-[62rem] items-center px-6 text-center font-heading text-[1.75rem] font-semibold uppercase leading-[1.2] md:text-[2.5rem]"
+        >
+          El oficio es ver el problema antes de que el hormigón fragüe. Hacer el piso una vez. Saber qué viene después.
         </h2>
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {projects.slice(0, 3).map((project) => (
-            <a key={project.slug} href={`/project/${project.slug}`} className="group block">
-              <img src={project.image} alt={project.imageAlt} className="aspect-[4/3] w-full rounded-[14px] object-cover" />
-              <h3 className="mt-3 font-heading uppercase group-hover:text-blue">{project.title}</h3>
-              <p className="text-[14px] text-grey">{project.location}</p>
-            </a>
-          ))}
-        </div>
-        <p className="mt-16 max-w-3xl text-[18px]">
-          Las fotos de esta sección son de referencia. Los nombres de clientes y las obras terminadas se publican cuando BMP los confirme.
-        </p>
       </section>
+
+      <section className="trust-section overflow-hidden bg-dark-tan text-ink" aria-labelledby="criteria-heading">
+        <p className="scroll-fade text-center font-heading text-base font-semibold uppercase">Cómo se trabaja</p>
+        <h2 id="criteria-heading" className="trust-heading scroll-fade mx-auto mt-8 font-heading">
+          El piso se banca
+          <br /> con oficio.
+        </h2>
+        <div className="trust-gap scroll-fade w-full">
+          <div className="trust-marquee">
+            {[0, 1].map((copy) => (
+              <ul key={copy} className="trust-marquee-track list-none" aria-hidden={copy > 0 || undefined}>
+                {values.map((item) => (
+                  <li key={`${item.title}-${copy}`} className="trust-card bg-tan">
+                    <p className="trust-quote">{item.body}</p>
+                    <h3 className="trust-name font-heading">{item.title}</h3>
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-tan py-24" aria-labelledby="service-work-heading">
+        <div className="mx-auto w-full max-w-[1360px] px-4 md:px-6 lg:px-0">
+          <div className="flex items-end justify-between gap-6">
+            <h2 id="service-work-heading" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] lg:text-[4rem]">
+              Tipos de obra
+            </h2>
+            <Link to="/projects" className="group inline-flex items-center rounded-[4px] bg-blue px-6 py-4 font-heading text-base font-semibold uppercase text-tan">
+              <SlideLabel>Ver todos</SlideLabel>
+            </Link>
+          </div>
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {projects.slice(0, 3).map((project) => (
+              <Link key={project.slug} to={`/project/${project.slug}`} className="group block">
+                <img src={project.image} alt={project.imageAlt} className="aspect-[16/10] w-full object-cover transition-transform duration-700 group-hover:scale-[1.02]" />
+                <p className="mt-4 text-sm">{project.location}</p>
+                <h3 className="mt-2 font-heading text-2xl font-semibold uppercase leading-[1.2] group-hover:text-blue">{project.title}</h3>
+              </Link>
+            ))}
+          </div>
+          <p className="mt-10 max-w-3xl text-base text-grey">
+            Las fotos de esta sección son de referencia. Los nombres de clientes y las obras terminadas se publican cuando BMP los confirme.
+          </p>
+        </div>
+      </section>
+
+      <ClosingBand
+        id="services-close-heading"
+        title="Empezá con"
+        stroke="BM Pisos."
+        body="Pisos de hormigón alisado para industria, comercio y depósitos, desde Villa Carlos Paz."
+        image={assets.floor}
+      />
     </div>
   );
 }
@@ -100,60 +200,99 @@ export function ContactPage() {
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const required = ["name", "email", "message"];
+    const required = ["first", "last", "email", "inquiry", "message"];
     const missing = required.some((key) => !String(data.get(key) ?? "").trim());
     if (missing) return;
     setSent(true);
   };
 
   return (
-    <div className="bg-tan pt-28 md:pt-36">
-      <section className="mx-auto grid max-w-[1360px] gap-12 px-5 pb-24 md:px-8 lg:grid-cols-[0.9fr_1.1fr]" aria-labelledby="contact-heading">
-        <div>
-          <h1 id="contact-heading" className="font-heading text-[3rem] uppercase leading-[0.95] md:text-[4.4rem]">
-            Contanos el piso que necesita la obra.
+    <div className="bg-tan">
+      <section className="page-hero" data-page-hero aria-labelledby="contact-heading">
+        <img src={assets.hero} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative mx-auto w-full max-w-[1360px] px-4 pb-36 pt-28 md:px-6 lg:px-0 lg:pt-[6.5rem]">
+          <h1 id="contact-heading" className="page-display mx-auto max-w-[16em] text-center">
+            ¿Listos para el piso?
           </h1>
-          <div className="mt-10 space-y-6">
-            <div>
-              <h2 className="font-heading uppercase">Canal</h2>
-              <p className="mt-1 text-[15px] text-grey">Todavía no hay teléfono ni correo publicados.</p>
-              <a className="mt-2 inline-block font-heading text-[20px] text-orange" href="https://www.instagram.com/bmpisosalisados/" target="_blank" rel="noreferrer">
+          <div className="contact-card mx-auto mt-16 w-full max-w-[60rem] px-6 py-12 text-ink md:px-16 md:py-16">
+            {sent ? (
+              <div className="py-16 text-center" role="status">
+                <h2 className="font-heading text-[2rem] font-semibold uppercase leading-[1.2] md:text-[3rem]">Mensaje anotado</h2>
+                <p className="mx-auto mt-4 max-w-md text-xl leading-[1.5]">
+                  Quedó en esta pantalla. El formulario todavía no sale del navegador: cuando haya un correo confirmado, se envía de verdad.
+                </p>
+              </div>
+            ) : (
+              <>
+                <p className="mx-auto max-w-[27rem] text-center text-xl leading-[1.5]">
+                  Tomamos consultas por pisos de hormigón en Córdoba, Santa Fe y provincias vecinas.
+                </p>
+                <form className="mt-10" onSubmit={onSubmit}>
+                  <div className="grid gap-x-6 gap-y-6 md:grid-cols-2">
+                    <Field label="Nombre" name="first" required />
+                    <Field label="Apellido" name="last" required />
+                    <Field label="Correo" name="email" type="email" required />
+                    <Field label="Teléfono" name="phone" type="tel" placeholder="Opcional" />
+                  </div>
+                  <div className="mt-6">
+                    <Field label="Empresa" name="company" placeholder="Opcional" />
+                  </div>
+                  <label className="mt-6 grid gap-2 text-base">
+                    ¿Sobre qué es la consulta?*
+                    <select name="inquiry" required defaultValue="" className="contact-field">
+                      <option value="" disabled>
+                        Elegí una
+                      </option>
+                      <option>Pedir una visita</option>
+                      <option>Trabajar en BMP</option>
+                      <option>Otra consulta</option>
+                    </select>
+                  </label>
+                  <label className="mt-6 grid gap-2 text-base">
+                    Mensaje*
+                    <textarea name="message" required rows={4} placeholder="Contanos la obra" className="contact-field contact-area" />
+                  </label>
+                  <Button type="submit" className="group mt-8">
+                    <SlideLabel>Enviar</SlideLabel>
+                  </Button>
+                </form>
+              </>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-dark-tan" aria-labelledby="talk-heading">
+        <div className="mx-auto grid w-full max-w-[1360px] gap-16 px-4 py-24 md:px-6 lg:grid-cols-[minmax(0,1fr)_18rem] lg:px-0 lg:py-32">
+          <div>
+            <h2 id="talk-heading" className="max-w-[14em] font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] lg:text-[3.5rem]">
+              Si preferís hablar de la obra.
+            </h2>
+            <p className="mt-6 max-w-md text-xl leading-[1.5]">Todavía no hay teléfono ni correo publicados. El canal abierto es Instagram.</p>
+            <div className="mt-12">
+              <h3 className="font-mono text-xs uppercase tracking-[0.36em] text-grey">Canal</h3>
+              <a
+                className="mt-3 inline-block font-heading text-[2rem] font-semibold uppercase text-orange focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue"
+                href={brand.socials[0].href}
+                target="_blank"
+                rel="noreferrer"
+              >
                 Instagram
               </a>
             </div>
-            <div>
-              <h2 className="font-heading uppercase">Base</h2>
-              <p>Villa Carlos Paz<br />Córdoba, Argentina</p>
-            </div>
-            <div>
-              <h2 className="font-heading uppercase">Zona</h2>
-              <p>Córdoba, Santa Fe y provincias vecinas.</p>
-            </div>
+          </div>
+          <div className="lg:text-right">
+            <h3 className="font-mono text-xs uppercase tracking-[0.36em] text-grey">Base</h3>
+            <p className="mt-3 text-xl leading-[1.5]">
+              Villa Carlos Paz
+              <br />
+              Córdoba, Argentina
+            </p>
+            <h3 className="mt-8 font-mono text-xs uppercase tracking-[0.36em] text-grey">Zona</h3>
+            <p className="mt-3 text-xl leading-[1.5]">Córdoba, Santa Fe y provincias vecinas.</p>
           </div>
         </div>
-        {sent ? (
-          <div className="rounded-[18px] bg-dark-tan p-8" role="status">
-            <h2 className="font-heading text-[2rem] uppercase">Mensaje anotado</h2>
-            <p className="mt-3">
-              Quedó en esta pantalla. El formulario todavía no sale del navegador: cuando haya un correo confirmado, se envía de verdad.
-            </p>
-          </div>
-        ) : (
-          <form className="grid gap-4" onSubmit={onSubmit}>
-            <Field label="Nombre" name="name" required />
-            <Field label="Correo" name="email" type="email" required />
-            <Field label="Teléfono" name="phone" type="tel" />
-            <Field label="Empresa" name="company" />
-            <Field label="Lugar de la obra" name="location" />
-            <label className="grid gap-2 text-[14px]">
-              Mensaje
-              <textarea name="message" required rows={6} className="rounded-[8px] border border-stroke bg-white px-4 py-3 text-[16px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue" />
-            </label>
-            <Button type="submit" className="w-fit">
-              Enviar consulta
-            </Button>
-          </form>
-        )}
       </section>
     </div>
   );
@@ -164,21 +303,19 @@ function Field({
   name,
   type = "text",
   required,
+  placeholder,
 }: {
   label: string;
   name: string;
   type?: string;
   required?: boolean;
+  placeholder?: string;
 }) {
   return (
-    <label className="grid gap-2 text-[14px]">
+    <label className="grid gap-2 text-base">
       {label}
-      <input
-        name={name}
-        type={type}
-        required={required}
-        className="rounded-[8px] border border-stroke bg-white px-4 py-3 text-[16px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue"
-      />
+      {required ? "*" : ""}
+      <input name={name} type={type} required={required} placeholder={placeholder} className="contact-field" />
     </label>
   );
 }

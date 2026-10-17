@@ -33,7 +33,6 @@ export function Header() {
 
   useEffect(() => {
     setOpen(false);
-    setOnDark(pathname === "/");
   }, [pathname]);
 
   useEffect(() => {
@@ -42,11 +41,28 @@ export function Header() {
   }, [open]);
 
   useEffect(() => {
-    if (pathname !== "/") return;
-    const onScroll = () => setOnDark(window.scrollY < window.innerHeight * 0.46);
+    const hero =
+      pathname === "/"
+        ? document.querySelector(".home-hero")
+        : document.querySelector("[data-page-hero]");
+    if (!hero) {
+      setOnDark(false);
+      return;
+    }
+    const onScroll = () => {
+      if (pathname === "/") {
+        setOnDark(window.scrollY < window.innerHeight * 0.46);
+        return;
+      }
+      setOnDark(hero.getBoundingClientRect().bottom > 72);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, [pathname]);
 
   useEffect(() => {

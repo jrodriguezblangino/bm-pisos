@@ -1103,6 +1103,158 @@ a.career-btn {
   }
 }
 
+.page-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  color: var(--color-tan);
+}
+
+.page-display {
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.page-kicker {
+  font-size: 1.25rem;
+  line-height: 1.5;
+}
+
+.service-tabs {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.service-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.service-tab {
+  position: relative;
+  flex: none;
+  padding-bottom: 0.85rem;
+  color: var(--color-grey);
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.service-tab.is-active {
+  color: var(--color-ink);
+}
+
+.service-tab.is-active::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: var(--color-blue);
+}
+
+.tab-panel {
+  animation: hero-rise 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.value-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 36s linear infinite;
+}
+
+.value-marquee.is-reverse {
+  animation-direction: reverse;
+}
+
+.value-word {
+  padding-inline: 1.5rem;
+  font-family: var(--font-heading);
+  font-size: clamp(3.5rem, 8vw, 6.5rem);
+  font-weight: 600;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.project-row {
+  display: grid;
+  align-items: center;
+  gap: 1.25rem;
+  border-bottom: 1px solid var(--color-line);
+  padding-block: 1rem;
+  transition: background-color 0.35s ease;
+}
+
+.project-row:hover {
+  background: var(--color-dark-tan);
+}
+
+.contact-card {
+  border-radius: 8px;
+  background: #fff5e8;
+}
+
+.contact-field {
+  height: 3rem;
+  width: 100%;
+  border: 1px solid rgb(28 25 22 / 16%);
+  border-radius: 4px;
+  background: transparent;
+  padding-inline: 1rem;
+  font-size: 1rem;
+}
+
+.contact-field:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 2px;
+}
+
+.contact-area {
+  height: auto;
+  min-height: 5.8rem;
+  padding-block: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .page-display {
+    font-size: 4rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .page-display {
+    font-size: 4.875rem;
+  }
+
+  .project-row {
+    grid-template-columns: minmax(0, 35rem) minmax(0, 1fr) 16.875rem;
+    min-height: 8.75rem;
+    padding-block: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-fade {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  .tab-panel,
+  .value-marquee {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .slide-char > span,
   .work-arrow > span,
