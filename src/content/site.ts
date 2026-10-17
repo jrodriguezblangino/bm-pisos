@@ -19,7 +19,10 @@ export const brand = {
       map: "https://maps.google.com/?q=Villa+Carlos+Paz+Cordoba+Argentina",
     },
   ],
-  socials: [{ label: "Instagram", href: "https://www.instagram.com/bmpisosalisados/" }],
+  socials: [
+    { label: "Instagram", href: "https://www.instagram.com/bmpisosalisados/" },
+    { label: "WhatsApp", href: "https://wa.me/WHATSAPP_PLACEHOLDER" },
+  ],
   credit: { label: "", href: "" },
 };
 

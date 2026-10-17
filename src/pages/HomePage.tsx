@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowIcon, Button, SlideLabel } from "../components/Button";
 import { IntroLoader } from "../components/IntroLoader";
@@ -142,6 +142,62 @@ function CareerStack() {
   );
 }
 
+function StatValue({ value }: { value: string }) {
+  const ref = useRef<HTMLElement>(null);
+  const numeric = /^(\d+)(.*)$/.exec(value);
+  const [progress, setProgress] = useState(1);
+
+  useLayoutEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    setProgress(0);
+    let frame = 0;
+    let timer = 0;
+    const duration = 2000;
+    const tick = (start: number) => {
+      const next = Math.min(1, (performance.now() - start) / duration);
+      setProgress(next);
+      if (next < 1) frame = window.requestAnimationFrame(() => tick(start));
+    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        timer = window.setTimeout(() => tick(performance.now()), 300);
+      },
+      { threshold: 0.2 },
+    );
+    observer.observe(node);
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(timer);
+      window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  if (!numeric) {
+    const shown = Math.ceil(progress * value.length);
+    return (
+      <dt ref={ref} className="font-heading text-[2.5rem] font-semibold uppercase leading-none min-[992px]:text-[3rem]">
+        {value.split("").map((char, index) => (
+          <span key={`${char}-${index}`} style={{ opacity: index < shown ? 1 : 0 }}>
+            {char}
+          </span>
+        ))}
+      </dt>
+    );
+  }
+
+  const counted = Math.round(Number(numeric[1]) * progress);
+  return (
+    <dt ref={ref} className="font-heading text-[2.5rem] font-semibold uppercase leading-none min-[992px]:text-[3rem]">
+      {counted}
+      {numeric[2]}
+    </dt>
+  );
+}
+
 function ClientMarquee() {
   return (
     <div className="overflow-hidden">
@@ -241,23 +297,11 @@ export function HomePage() {
       return from + ((to - from) * (progress - start)) / (end - start);
     };
 
-    const onScroll = () => {
-      if (reduce.matches) {
-        color.style.height = "";
-        sticky.style.height = "";
-        copy.style.opacity = "";
-        copy.style.transform = "";
-        if (header) header.style.opacity = "";
-        return;
-      }
+    let target = 0;
+    let shown = 0;
+    let frame = 0;
 
-      const viewport = window.innerHeight;
-      const top = hero.getBoundingClientRect().top + window.scrollY;
-      const start = top - viewport;
-      const end = top + hero.offsetHeight;
-      const span = end - start;
-      const progress = span <= 0 ? 0 : Math.min(1, Math.max(0, (window.scrollY - start) / span));
-
+    const apply = (progress: number) => {
       color.style.height = `${between(progress, 0.425, 0.6, 100, 0)}%`;
       sticky.style.height = `${between(progress, 0.7, 1, 100, 0)}dvh`;
       copy.style.opacity = String(between(progress, 0.405, 0.425, 1, 0));
@@ -273,12 +317,50 @@ export function HomePage() {
       }
     };
 
-    onScroll();
+    const measure = () => {
+      const viewport = window.innerHeight;
+      const top = hero.getBoundingClientRect().top + window.scrollY;
+      const start = top - viewport;
+      const end = top + hero.offsetHeight;
+      const span = end - start;
+      return span <= 0 ? 0 : Math.min(1, Math.max(0, (window.scrollY - start) / span));
+    };
+
+    const settle = () => {
+      const delta = target - shown;
+      if (Math.abs(delta) < 0.0004) {
+        shown = target;
+        apply(shown);
+        frame = 0;
+        return;
+      }
+      shown += delta * 0.1;
+      apply(shown);
+      frame = window.requestAnimationFrame(settle);
+    };
+
+    const onScroll = () => {
+      if (reduce.matches) {
+        color.style.height = "";
+        sticky.style.height = "";
+        copy.style.opacity = "";
+        copy.style.transform = "";
+        if (header) header.style.opacity = "";
+        return;
+      }
+      target = measure();
+      if (!frame) frame = window.requestAnimationFrame(settle);
+    };
+
+    target = measure();
+    shown = target;
+    apply(shown);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
       if (header) header.style.opacity = "";
     };
   }, []);
@@ -304,17 +386,21 @@ export function HomePage() {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) return;
     const steps = services.length - 1;
-    const onScroll = () => {
+    let target = 0;
+    let shown = 0;
+    let frame = 0;
+
+    const measure = () => {
       const rect = track.getBoundingClientRect();
       const total = rect.height - window.innerHeight;
       const scrolled = total <= 0 ? 0 : Math.min(1, Math.max(0, -rect.top / total));
       const stops: Array<[number, number]> = [
         [0, 0],
-        [0.3, 1],
-        [0.38, 1],
-        [0.62, 2],
-        [0.7, 2],
-        [0.9, steps],
+        [0.12, 0],
+        [0.32, 1],
+        [0.4, 1],
+        [0.58, 2],
+        [0.66, 2],
         [1, steps],
       ];
       let pos = steps;
@@ -327,14 +413,36 @@ export function HomePage() {
           break;
         }
       }
-      setScopePos(pos);
+      return pos;
     };
-    onScroll();
+
+    const settle = () => {
+      const delta = target - shown;
+      if (Math.abs(delta) < 0.002) {
+        shown = target;
+        setScopePos(shown);
+        frame = 0;
+        return;
+      }
+      shown += delta * 0.12;
+      setScopePos(shown);
+      frame = window.requestAnimationFrame(settle);
+    };
+
+    const onScroll = () => {
+      target = measure();
+      if (!frame) frame = window.requestAnimationFrame(settle);
+    };
+
+    target = measure();
+    shown = target;
+    setScopePos(shown);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);
 
@@ -450,7 +558,7 @@ export function HomePage() {
               No es solo alisar. Es dejar un piso que aguante el proyecto para el que fue pedido.
             </p>
           </div>
-          <div className="grid items-start gap-6 min-[768px]:grid-cols-2 min-[1200px]:grid-cols-4">
+          <div className="grid min-h-[14em] items-start gap-6 [overflow-anchor:none] min-[768px]:grid-cols-2 min-[1200px]:grid-cols-4">
             {capabilities.map((item, index) => {
               const expanded = capability === index;
               return (
@@ -532,9 +640,9 @@ export function HomePage() {
             ))}
           </div>
         ) : (
-        <div ref={scopeTrackRef} className="scope-track relative h-[185vh]">
-          <div className="sticky top-0 flex h-dvh items-end">
-            <div className="relative mx-auto h-[min(51.875rem,100dvh)] w-full max-w-[1360px] px-4 min-[768px]:px-6 min-[992px]:px-0">
+        <div ref={scopeTrackRef} className="scope-track relative h-[210vh]">
+          <div className="sticky top-0 flex h-dvh items-start pt-10">
+            <div className="relative mx-auto h-[min(51.875rem,calc(100dvh-2.5rem))] w-full max-w-[1360px] px-4 min-[768px]:px-6 min-[992px]:px-0">
               {services.map((service, index) => {
                 const card = scopeFrame(index, scopePos);
                 return (
@@ -605,7 +713,7 @@ export function HomePage() {
           <dl className="scroll-fade scroll-fade-late mt-12 flex flex-wrap gap-x-10 gap-y-8 min-[992px]:mt-16 min-[992px]:w-[calc(100%-18.5rem-3.1875rem)] min-[992px]:flex-nowrap min-[992px]:justify-between">
             {stats.map((stat) => (
               <div key={stat.label}>
-                <dt className="font-heading text-[2.5rem] font-semibold uppercase leading-none min-[992px]:text-[3rem]">{stat.value}</dt>
+                <StatValue value={stat.value} />
                 <dd className="mt-1 text-base leading-6">{stat.label}</dd>
               </div>
             ))}
@@ -776,7 +884,8 @@ export function HomePage() {
         <div className="cta-fade" aria-hidden="true">
           <div className="cta-fade-soft" />
         </div>
-        <div className="scroll-fade relative z-[2] mx-auto flex w-full max-w-[48.875rem] flex-col items-center px-6 pb-40 pt-[29.875rem] text-center min-[768px]:pb-[15rem]">
+        <div className="relative z-[2] mx-auto flex w-full max-w-[48.875rem] flex-col items-center px-6 pb-40 pt-[29.875rem] text-center min-[768px]:pb-[15rem]">
+          <div className="scroll-fade flex w-full flex-col items-center">
           <h2 id="start-heading" className="cta-title">
             <span>Empezá con</span>
             <span className="cta-stroke">BM Pisos.</span>
@@ -789,6 +898,7 @@ export function HomePage() {
             <Link to="/careers" className="cta-btn cta-btn-dark group">
               <SlideLabel>Sumate a BMP</SlideLabel>
             </Link>
+          </div>
           </div>
         </div>
       </section>

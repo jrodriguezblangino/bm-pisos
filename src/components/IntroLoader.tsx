@@ -1,8 +1,12 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { assets } from "../content/site";
 
-const FILL_DONE_MS = 1600;
-const EXPAND_MS = 1500;
+const FILL_DELAY_MS = 550;
+const FILL_MS = 1050;
+const HOLD_MS = 180;
+const FILL_DONE_MS = FILL_DELAY_MS + FILL_MS + HOLD_MS;
+const DOT_FADE_MS = 280;
+const EXPAND_MS = 1700;
 
 export function IntroLoader({ onDone }: { onDone: () => void }) {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -108,7 +112,7 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
     };
 
     const open = () => {
-      if (cancelled || !dot || !shell) return;
+      if (cancelled || !dot || !shell || !word) return;
       openingRef.current = true;
       shell.classList.add("is-opening");
 
@@ -118,43 +122,45 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
       dot.style.inset = "auto";
       dot.style.margin = "0";
       dot.style.zIndex = "5";
+      const parked = {
+        left: `${from.left}px`,
+        top: `${from.top}px`,
+        width: `${from.width}px`,
+        height: `${from.height}px`,
+        borderRadius: "22%",
+      };
 
-      const animation = dot.animate(
-        [
-          {
-            left: `${from.left}px`,
-            top: `${from.top}px`,
-            width: `${from.width}px`,
-            height: `${from.height}px`,
-            borderRadius: "22%",
-            opacity: 0,
-          },
-          {
-            left: `${from.left}px`,
-            top: `${from.top}px`,
-            width: `${from.width}px`,
-            height: `${from.height}px`,
-            borderRadius: "22%",
-            opacity: 1,
-            offset: 0.12,
-          },
-          {
-            left: `${to.left}px`,
-            top: `${to.top}px`,
-            width: `${to.width}px`,
-            height: `${to.height}px`,
-            borderRadius: "0px",
-            opacity: 1,
-          },
-        ],
-        {
-          duration: EXPAND_MS,
-          easing: "cubic-bezier(0.76, 0, 0.18, 1)",
-          fill: "forwards",
-        },
-      );
+      const fade = dot.animate([{ ...parked, opacity: 0 }, { ...parked, opacity: 1 }], {
+        duration: DOT_FADE_MS,
+        easing: "cubic-bezier(0.25, 0.1, 0.25, 1)",
+        fill: "forwards",
+      });
 
-      animation.finished
+      fade.finished
+        .then(() => {
+          if (cancelled) return;
+          word.querySelectorAll<HTMLElement>(".loader-period").forEach((period) => {
+            period.style.opacity = "0";
+          });
+          return dot.animate(
+            [
+              { ...parked, opacity: 1 },
+              {
+                left: `${to.left}px`,
+                top: `${to.top}px`,
+                width: `${to.width}px`,
+                height: `${to.height}px`,
+                borderRadius: "0px",
+                opacity: 1,
+              },
+            ],
+            {
+              duration: EXPAND_MS,
+              easing: "cubic-bezier(0.76, 0, 0.18, 1)",
+              fill: "forwards",
+            },
+          ).finished;
+        })
         .then(() => {
           if (cancelled) return;
           window.setTimeout(() => {

@@ -159,7 +159,7 @@ body.is-loader-locked {
 }
 
 .loader-word.is-ready .loader-solid {
-  animation: loader-text-fill 0.8s cubic-bezier(0.65, 0, 0.35, 1) 0.5s forwards;
+  animation: loader-text-fill 1.05s cubic-bezier(0.25, 0.1, 0.25, 1) 0.55s forwards;
 }
 
 .loader-period {
@@ -198,7 +198,8 @@ body.is-loader-locked {
 }
 
 .loader-shell.is-opening .loader-line {
-  animation: loader-word-out 0.45s ease forwards;
+  opacity: 1;
+  visibility: visible;
 }
 
 .nav-shell {
