@@ -26,9 +26,19 @@ const clients = [
   { src: publicUrl("logos/vcp.png"), alt: "Municipalidad de Villa Carlos Paz", height: "h-12" },
 ];
 
-function scopeFrame(index: number, pos: number) {
+function scopeFrame(index: number, pos: number, compact: boolean) {
   const distance = Math.max(-1.2, Math.min(1.2, index - pos));
   const z = Math.round(30 - Math.abs(distance) * 10);
+  if (compact) {
+    if (distance <= -1) return { sx: 1, sy: 1, x: 0, y: -24, text: 0, image: 0, z };
+    if (distance >= 1) return { sx: 1, sy: 1, x: 0, y: 16, text: 0, image: 0.4, z };
+    if (distance < 0) {
+      const t = -distance;
+      return { sx: 1, sy: 1, x: 0, y: -24 * t, text: t < 0.12 ? 1 - t / 0.12 : 0, image: 1 - t, z };
+    }
+    const t = distance;
+    return { sx: 1, sy: 1, x: 0, y: 16 * t, text: t < 0.12 ? 1 - t / 0.12 : 0, image: 1 - t * 0.6, z };
+  }
   if (distance <= -1) return { sx: 0.2, sy: 0.15, x: -26, y: 0, text: 0, image: 0, z };
   if (distance >= 1) return { sx: 0.2, sy: 0.15, x: 107, y: 85, text: 0, image: 1, z };
   if (distance < 0) {
@@ -211,6 +221,7 @@ export function HomePage() {
   const [showLoader, setShowLoader] = useState(true);
   const [videoOpen, setVideoOpen] = useState(false);
   const [scopePos, setScopePos] = useState(0);
+  const [compactScope, setCompactScope] = useState(() => window.matchMedia("(max-width: 991px)").matches);
   const [reduceMotion] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const heroRef = useRef<HTMLElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
@@ -366,6 +377,14 @@ export function HomePage() {
   }, []);
 
   useEffect(() => {
+    const query = window.matchMedia("(max-width: 991px)");
+    const sync = () => setCompactScope(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
     const track = scopeTrackRef.current;
     if (!track) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -449,7 +468,7 @@ export function HomePage() {
           </div>
           <div ref={copyRef} className="absolute inset-0 z-10">
             <div className="mx-auto flex h-full w-full max-w-[1360px] flex-col items-center justify-center gap-6 px-4 pb-8 pt-[5.7rem] text-center text-tan md:gap-8 md:pt-28 lg:gap-64 lg:px-0 lg:pb-14 lg:pt-[13.5rem]">
-              <h1 id="hero-heading" className="hero-title font-heading text-[3rem] font-semibold uppercase leading-[1.2] md:text-[4rem] lg:text-[4.875rem]">
+              <h1 id="hero-heading" className="hero-title font-heading text-[clamp(2.35rem,12vw,3rem)] font-semibold uppercase leading-[1.2] md:text-[4rem] lg:text-[4.875rem]">
                 <span className="block">Pisos para</span>
                 obra exigente.
               </h1>
@@ -501,16 +520,16 @@ export function HomePage() {
                 </p>
               </div>
             </div>
-            <div className="flex gap-6 max-[991px]:gap-4 max-[767px]:flex-col">
+            <div className="grid grid-cols-1 gap-4 min-[768px]:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] min-[992px]:gap-6">
               <img
                 src={assets.floor}
                 alt={imageCredit}
-                className="scroll-fade scroll-fade-late aspect-square w-full rounded-lg object-cover min-[768px]:aspect-auto min-[768px]:h-[19.9219rem] min-[768px]:w-[60%] min-[768px]:min-w-0 min-[992px]:h-[26.5625rem] min-[992px]:w-full min-[992px]:max-w-[56.1875rem]"
+                className="scroll-fade scroll-fade-late aspect-square w-full rounded-lg object-cover min-[768px]:aspect-auto min-[768px]:h-[19.9219rem] min-[992px]:h-[26.5625rem]"
               />
               <img
                 src={assets.pour}
                 alt={imageCredit}
-                className="scroll-fade scroll-fade-late aspect-square w-full rounded-lg object-cover min-[768px]:aspect-auto min-[768px]:h-[19.9219rem] min-[768px]:w-[40%] min-[768px]:min-w-0 min-[992px]:h-[26.5625rem] min-[992px]:w-full min-[992px]:max-w-[27.3125rem]"
+                className="scroll-fade scroll-fade-late aspect-square w-full rounded-lg object-cover min-[768px]:aspect-auto min-[768px]:h-[19.9219rem] min-[992px]:h-[26.5625rem]"
               />
             </div>
           </div>
@@ -625,11 +644,11 @@ export function HomePage() {
             ))}
           </div>
         ) : (
-        <div ref={scopeTrackRef} className="scope-track relative h-[210vh]">
-          <div className="sticky top-0 flex h-dvh items-start pt-10">
-            <div className="relative mx-auto h-[min(51.875rem,calc(100dvh-2.5rem))] w-full max-w-[1360px] px-4 min-[768px]:px-6 min-[992px]:px-0">
+        <div ref={scopeTrackRef} className="scope-track relative h-[210vh] overflow-x-clip">
+          <div className="sticky top-0 flex h-dvh items-start pt-6 min-[992px]:pt-10">
+            <div className="relative mx-auto h-[min(51.875rem,calc(100dvh-5.5rem))] w-full max-w-[1360px] px-4 min-[768px]:px-6 min-[992px]:h-[min(51.875rem,calc(100dvh-2.5rem))] min-[992px]:px-0">
               {services.map((service, index) => {
-                const card = scopeFrame(index, scopePos);
+                const card = scopeFrame(index, scopePos, compactScope);
                 return (
                   <article
                     key={service.slug}
@@ -695,7 +714,7 @@ export function HomePage() {
               </div>
             </div>
           </div>
-          <dl className="scroll-fade scroll-fade-late mt-12 flex flex-wrap items-center gap-x-[5.5rem] gap-y-6 min-[992px]:mt-16 min-[992px]:w-[calc(100%-18.5rem-3.1875rem)] min-[992px]:flex-nowrap">
+          <dl className="scroll-fade scroll-fade-late mt-12 flex flex-wrap items-center gap-x-10 gap-y-6 min-[992px]:mt-16 min-[992px]:w-[calc(100%-18.5rem-3.1875rem)] min-[992px]:flex-nowrap min-[992px]:gap-x-[5.5rem]">
             {stats.map((stat) => (
               <div key={stat.label} className="flex flex-col items-start gap-2">
                 <StatValue value={stat.value} suffix={stat.suffix} />
@@ -710,23 +729,23 @@ export function HomePage() {
         <img src={featured[0].image} alt="" className="absolute inset-0 h-full w-full scale-110 object-cover blur-md" />
         <div className="absolute inset-0 bg-black/35" />
         <div className="relative mx-auto w-full max-w-[1360px] px-4 min-[768px]:px-6 min-[992px]:px-0">
-          <div className="scroll-fade flex flex-col items-start justify-between gap-6 min-[768px]:flex-row min-[768px]:items-end">
+          <div className="scroll-fade flex w-full flex-col items-start justify-between gap-6 min-[992px]:flex-row min-[992px]:items-end">
             <h2 id="work-heading" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] min-[992px]:text-[4rem]">
               Tipos de obra
             </h2>
-            <div className="flex items-center gap-6 min-[992px]:gap-10">
-              <span className="font-mono text-base tracking-[0.36em]">
+            <div className="slider-bar">
+              <span className="slider-count">
                 [ {String(slide + 1).padStart(2, "0")}/{String(featured.length).padStart(2, "0")} ]
               </span>
-              <Link to="/projects" className="group inline-flex items-center justify-center rounded-[4px] bg-blue px-6 py-4 font-heading text-base font-semibold uppercase leading-none text-tan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tan">
+              <Link to="/projects" className="slider-cta group inline-flex shrink-0 items-center justify-center rounded-[4px] bg-blue font-heading font-semibold uppercase leading-none text-tan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tan">
                 <SlideLabel>Ver tipos</SlideLabel>
               </Link>
-              <div className="flex items-center gap-2">
+              <div className="slider-arrows">
                 <button
                   type="button"
                   aria-label="Anterior"
                   disabled={slide === 0}
-                  className="work-nav-btn group grid h-12 w-12 place-items-center rounded-[4px] bg-blue disabled:pointer-events-none disabled:opacity-40"
+                  className="work-nav-btn group grid place-items-center rounded-[4px] bg-blue disabled:pointer-events-none disabled:opacity-40"
                   onClick={() => setSlide((value) => Math.max(0, value - 1))}
                 >
                   <span className="work-arrow is-prev h-6 w-6">
@@ -738,7 +757,7 @@ export function HomePage() {
                   type="button"
                   aria-label="Siguiente"
                   disabled={slide === featured.length - 1}
-                  className="work-nav-btn group grid h-12 w-12 place-items-center rounded-[4px] bg-blue disabled:pointer-events-none disabled:opacity-40"
+                  className="work-nav-btn group grid place-items-center rounded-[4px] bg-blue disabled:pointer-events-none disabled:opacity-40"
                   onClick={() => setSlide((value) => Math.min(featured.length - 1, value + 1))}
                 >
                   <span className="work-arrow h-6 w-6">
@@ -842,7 +861,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="bg-tan px-4 pb-[5.4375rem] pt-20 min-[992px]:px-0 min-[992px]:pb-[3.1875rem] min-[992px]:pt-28" aria-labelledby="career-heading">
+      <section className="overflow-x-clip bg-tan px-4 pb-[5.4375rem] pt-20 min-[992px]:px-0 min-[992px]:pb-[3.1875rem] min-[992px]:pt-28" aria-labelledby="career-heading">
         <div className="mx-auto flex w-full max-w-[1360px] flex-col items-start gap-14 min-[992px]:flex-row min-[992px]:items-center">
           <div className="scroll-fade w-full max-w-[43.25rem]">
             <h2 id="career-heading" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] min-[768px]:text-[3.5rem]">

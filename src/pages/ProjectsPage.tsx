@@ -56,7 +56,7 @@ export function ProjectsPage() {
           <div className="mt-8 border-t border-line">
             {visible.map((project) => (
               <Link key={project.slug} to={`/project/${project.slug}`} className="project-row group px-2">
-                <img src={project.image} alt="" className="h-28 w-full object-cover md:h-[7.25rem]" />
+                <img src={project.image} alt="" className="object-cover" />
                 <h3 className="font-heading text-2xl font-semibold uppercase leading-[1.2] group-hover:text-blue">{project.title}</h3>
                 <div className="text-sm leading-6">
                   <p>{project.location}</p>
@@ -103,20 +103,20 @@ function FeaturedSlider() {
   return (
     <section id="destacados" className="scroll-mt-24 bg-tan py-24" aria-labelledby="featured-heading">
       <div className="mx-auto w-full max-w-[1360px] px-4 md:px-6 lg:px-0">
-        <div className="flex flex-col items-start justify-between gap-6 min-[768px]:flex-row min-[768px]:items-end">
+        <div className="flex w-full flex-col items-start justify-between gap-6 min-[992px]:flex-row min-[992px]:items-end">
           <h2 id="featured-heading" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] lg:text-[4rem]">
             Destacados
           </h2>
-          <div className="flex items-center gap-6">
-            <span className="font-mono text-base tracking-[0.36em]">
+          <div className="slider-bar">
+            <span className="slider-count">
               [ {String(slide + 1).padStart(2, "0")}/{String(featured.length).padStart(2, "0")} ]
             </span>
-            <div className="flex items-center gap-2">
+            <div className="slider-arrows">
               <button
                 type="button"
                 aria-label="Anterior"
                 disabled={slide === 0}
-                className="work-nav-btn group grid h-12 w-12 place-items-center rounded-[4px] bg-blue disabled:pointer-events-none disabled:opacity-40"
+                className="work-nav-btn group grid place-items-center rounded-[4px] bg-blue disabled:pointer-events-none disabled:opacity-40"
                 onClick={() => setSlide((value) => Math.max(0, value - 1))}
               >
                 <span className="work-arrow is-prev h-6 w-6">
@@ -132,7 +132,7 @@ function FeaturedSlider() {
                 type="button"
                 aria-label="Siguiente"
                 disabled={slide === featured.length - 1}
-                className="work-nav-btn group grid h-12 w-12 place-items-center rounded-[4px] bg-blue disabled:pointer-events-none disabled:opacity-40"
+                className="work-nav-btn group grid place-items-center rounded-[4px] bg-blue disabled:pointer-events-none disabled:opacity-40"
                 onClick={() => setSlide((value) => Math.min(featured.length - 1, value + 1))}
               >
                 <span className="work-arrow h-6 w-6">

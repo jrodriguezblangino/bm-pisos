@@ -101,7 +101,7 @@ export function ServicesPage() {
                 <SlideLabel>Consultar</SlideLabel>
               </Button>
             </div>
-            <img src={active.image} alt={active.imageAlt} className="h-[24rem] w-full object-cover lg:h-[37.5rem]" />
+            <img src={active.image} alt={active.imageAlt} className="order-first h-[16.5rem] w-full object-cover min-[768px]:h-[22rem] min-[992px]:order-none min-[992px]:h-[37.5rem]" />
           </article>
         </div>
       </section>
@@ -111,7 +111,7 @@ export function ServicesPage() {
           <h2 id="pillars-heading" className="scroll-fade max-w-[16em] font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] lg:text-[4rem]">
             Para obras que no pueden fallar el piso.
           </h2>
-          <div className="mt-20 grid gap-12 md:grid-cols-3 md:gap-16">
+          <div className="mt-14 grid gap-12 min-[768px]:mt-20 min-[992px]:grid-cols-3 min-[992px]:gap-16">
             {pillars.map((item) => (
               <article key={item.index} className="scroll-fade">
                 <p className="font-mono text-base tracking-[0.36em] text-[#898b8d]">[ {item.index} ]</p>
@@ -160,8 +160,8 @@ export function ServicesPage() {
 
       <section className="bg-tan py-24" aria-labelledby="service-work-heading">
         <div className="mx-auto w-full max-w-[1360px] px-4 md:px-6 lg:px-0">
-          <div className="flex items-end justify-between gap-6">
-            <h2 id="service-work-heading" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] lg:text-[4rem]">
+          <div className="flex flex-col items-start justify-between gap-6 min-[992px]:flex-row min-[992px]:items-end">
+            <h2 id="service-work-heading" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] min-[992px]:text-[4rem]">
               Tipos de obra
             </h2>
             <Link to="/projects" className="group inline-flex items-center rounded-[4px] bg-blue px-6 py-4 font-heading text-base font-semibold uppercase text-tan">
@@ -215,7 +215,7 @@ export function ContactPage() {
           <h1 id="contact-heading" className="page-display mx-auto max-w-[16em] text-center">
             ¿Listos para el piso?
           </h1>
-          <div className="contact-card mx-auto mt-16 w-full max-w-[60rem] px-6 py-12 text-ink md:px-16 md:py-16">
+          <div className="contact-card mx-auto mt-10 w-full max-w-[60rem] text-ink min-[768px]:mt-16">
             {sent ? (
               <div className="py-16 text-center" role="status">
                 <h2 className="font-heading text-[2rem] font-semibold uppercase leading-[1.2] md:text-[3rem]">Mensaje anotado</h2>

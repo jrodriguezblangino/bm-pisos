@@ -19,7 +19,7 @@ export function ClosingBand({ id, title, stroke, body, image }: ClosingBandProps
       <div className="cta-fade" aria-hidden="true">
         <div className="cta-fade-soft" />
       </div>
-      <div className="scroll-fade relative z-[2] mx-auto flex w-full max-w-[48.875rem] flex-col items-center px-6 pb-28 pt-32 text-center min-[768px]:pb-48 min-[768px]:pt-56">
+      <div className="scroll-fade relative z-[2] mx-auto flex w-full max-w-[48.875rem] flex-col items-center px-5 pb-28 pt-[18rem] text-center min-[768px]:px-6 min-[768px]:pb-40 min-[768px]:pt-[22rem] min-[992px]:pt-[26rem]">
         <h2 id={id} className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] min-[768px]:text-[3.5rem] min-[992px]:text-[4rem]">
           {title}
           <span className="mt-1 block">{stroke}</span>
