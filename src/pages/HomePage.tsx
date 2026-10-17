@@ -9,20 +9,21 @@ import {
   imageCredit,
   principles,
   projects,
+  publicUrl,
   services,
   stats,
 } from "../content/site";
 
 const clients = [
-  { src: "/logos/ypf-logo.svg", alt: "YPF", height: "h-10" },
-  { src: "/logos/shell.svg", alt: "Shell", height: "h-[2.15rem]" },
-  { src: "/logos/libertad.svg", alt: "Hiper Libertad", height: "h-11" },
+  { src: publicUrl("logos/ypf-logo.svg"), alt: "YPF", height: "h-10" },
+  { src: publicUrl("logos/shell.svg"), alt: "Shell", height: "h-[2.15rem]" },
+  { src: publicUrl("logos/libertad.svg"), alt: "Hiper Libertad", height: "h-11" },
   {
-    src: "/logos/escuela.png",
+    src: publicUrl("logos/escuela.png"),
     alt: "Instituto Parroquial Bernardo D'Elía, Centro Parroquial Margarita A. de Paz",
     height: "h-12",
   },
-  { src: "/logos/vcp.png", alt: "Municipalidad de Villa Carlos Paz", height: "h-12" },
+  { src: publicUrl("logos/vcp.png"), alt: "Municipalidad de Villa Carlos Paz", height: "h-12" },
 ];
 
 function scopeFrame(index: number, pos: number) {
@@ -465,7 +466,7 @@ export function HomePage() {
                   <video
                     className="h-full w-full object-cover"
                     src={assets.heroVideo}
-                    poster="/media/hall.jpg"
+                    poster={publicUrl("media/hall.jpg")}
                     autoPlay
                     muted
                     loop
@@ -906,7 +907,7 @@ export function HomePage() {
             <video
               className="aspect-video w-full rounded-lg bg-ink"
               src={assets.heroVideo}
-              poster="/media/hall.jpg"
+              poster={publicUrl("media/hall.jpg")}
               controls
               autoPlay
               playsInline

@@ -1,4 +1,6 @@
-const photo = (file: string) => `/media/${file}`;
+export const publicUrl = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
+
+const photo = (file: string) => publicUrl(`media/${file}`);
 
 export const imageCredit =
   "Imagen de referencia. No es una obra documentada de BMP y se reemplaza con fotos de proyecto.";
@@ -27,7 +29,7 @@ export const brand = {
 };
 
 export const logos = {
-  mark: "/logo.jpg",
+  mark: publicUrl("logo.jpg"),
 };
 
 export const assets = {
