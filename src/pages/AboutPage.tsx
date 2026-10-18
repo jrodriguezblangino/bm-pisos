@@ -175,8 +175,6 @@ function ValueTrack() {
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
     const onScroll = () => {
       const rect = track.getBoundingClientRect();
       const total = rect.height - viewportHeight();

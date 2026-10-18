@@ -7,4 +7,7 @@ const githubActions = (globalThis as { process?: { env?: { GITHUB_ACTIONS?: stri
 export default defineConfig({
   base: githubActions ? "/bm-pisos/" : "/",
   plugins: [react(), tailwindcss()],
+  build: {
+    target: ["es2019", "safari14"],
+  },
 });

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { logos, nav } from "../content/site";
-import { bindViewport, viewportHeight } from "../viewport";
+import { bindViewport, scrollTop, viewportHeight } from "../viewport";
 
 function RiseLabel({ text }: { text: string }) {
   const chars = [...text];
@@ -52,7 +52,7 @@ export function Header() {
     }
     const onScroll = () => {
       if (pathname === "/") {
-        setOnDark(window.scrollY < viewportHeight() * 0.46);
+        setOnDark(scrollTop() < viewportHeight() * 0.46);
         return;
       }
       setOnDark(hero.getBoundingClientRect().bottom > 72);
@@ -64,14 +64,13 @@ export function Header() {
   useEffect(() => {
     const header = document.querySelector("header");
     if (!header) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce || open) {
+    if (open) {
       header.style.transform = "";
       header.style.transition = "";
       return;
     }
 
-    let lastY = window.scrollY;
+    let lastY = scrollTop();
     let scrollHidden = false;
     let visualHidden = false;
     let near = false;
@@ -93,13 +92,13 @@ export function Header() {
         near = nextNear;
         setPeek(nextNear);
       }
-      const hide = scrollHidden && !near && window.scrollY > 0;
+      const hide = scrollHidden && !near && scrollTop() > 0;
       shift(hide);
     };
 
     const onScroll = () => {
       if (document.body.classList.contains("nav-open")) return;
-      const y = window.scrollY;
+      const y = scrollTop();
       const delta = y - lastY;
       lastY = y;
       if (y <= 0) scrollHidden = false;
@@ -143,8 +142,6 @@ export function Header() {
   }, []);
 
   useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
     const links = [...document.querySelectorAll<HTMLElement>(".letter-link")];
     const cleanups: Array<() => void> = [];
 

@@ -13,7 +13,7 @@ import {
   services,
   stats,
 } from "../content/site";
-import { afterLoader, bindViewport, viewportHeight, watchScrollFades } from "../viewport";
+import { afterLoader, bindViewport, scrollTop, viewportHeight, watchScrollFades } from "../viewport";
 
 const clients = [
   { src: publicUrl("logos/ypf-logo.svg"), alt: "YPF", height: "h-10" },
@@ -161,7 +161,6 @@ function StatValue({ value, suffix }: { value: number; suffix: string }) {
   useLayoutEffect(() => {
     const node = ref.current;
     if (!node) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     setShown(0);
     let frame = 0;
     let timer = 0;
@@ -223,7 +222,6 @@ export function HomePage() {
   const [videoOpen, setVideoOpen] = useState(false);
   const [scopePos, setScopePos] = useState(0);
   const [compactScope, setCompactScope] = useState(() => window.matchMedia("(max-width: 991px)").matches);
-  const [reduceMotion] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const heroRef = useRef<HTMLElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
   const colorRef = useRef<HTMLDivElement>(null);
@@ -251,11 +249,6 @@ export function HomePage() {
 
   useEffect(() => {
     const root = document.documentElement;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) {
-      root.classList.add("hero-ready");
-      return () => root.classList.remove("hero-ready", "hero-pending");
-    }
     root.classList.add("hero-pending");
     root.classList.remove("hero-ready");
     return () => root.classList.remove("hero-pending", "hero-ready");
@@ -288,7 +281,6 @@ export function HomePage() {
     const copy = copyRef.current;
     if (!hero || !sticky || !color || !copy) return;
 
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
     const header = document.querySelector("header");
 
     const between = (progress: number, start: number, end: number, from: number, to: number) => {
@@ -321,11 +313,12 @@ export function HomePage() {
 
     const measure = () => {
       const viewport = viewportHeight();
-      const top = hero.getBoundingClientRect().top + window.scrollY;
+      const y = scrollTop();
+      const top = hero.getBoundingClientRect().top + y;
       const start = top - viewport;
       const end = top + hero.offsetHeight;
       const span = end - start;
-      return span <= 0 ? 0 : Math.min(1, Math.max(0, (window.scrollY - start) / span));
+      return span <= 0 ? 0 : Math.min(1, Math.max(0, (y - start) / span));
     };
 
     const settle = () => {
@@ -342,26 +335,20 @@ export function HomePage() {
     };
 
     const onScroll = () => {
-      if (reduce.matches) {
-        color.style.height = "";
-        sticky.style.height = "";
-        copy.style.opacity = "";
-        copy.style.transform = "";
-        if (header) header.style.opacity = "";
-        return;
-      }
       target = measure();
       if (!frame) frame = window.requestAnimationFrame(settle);
     };
 
-    target = measure();
-    shown = target;
-    apply(shown);
-    const unbind = bindViewport(onScroll);
-    window.addEventListener("bmp-loader-done", onScroll);
+    let unbind = () => {};
+    const cancelWait = afterLoader(() => {
+      target = measure();
+      shown = target;
+      apply(shown);
+      unbind = bindViewport(onScroll);
+    });
     return () => {
+      cancelWait();
       unbind();
-      window.removeEventListener("bmp-loader-done", onScroll);
       if (frame) window.cancelAnimationFrame(frame);
       if (header) header.style.opacity = "";
     };
@@ -389,8 +376,6 @@ export function HomePage() {
   useEffect(() => {
     const track = scopeTrackRef.current;
     if (!track) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
     const steps = services.length - 1;
     let target = 0;
     let shown = 0;
@@ -440,14 +425,16 @@ export function HomePage() {
       if (!frame) frame = window.requestAnimationFrame(settle);
     };
 
-    target = measure();
-    shown = target;
-    setScopePos(shown);
-    const unbind = bindViewport(onScroll);
-    window.addEventListener("bmp-loader-done", onScroll);
+    let unbind = () => {};
+    const cancelWait = afterLoader(() => {
+      target = measure();
+      shown = target;
+      setScopePos(shown);
+      unbind = bindViewport(onScroll);
+    });
     return () => {
+      cancelWait();
       unbind();
-      window.removeEventListener("bmp-loader-done", onScroll);
       if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);
@@ -624,28 +611,6 @@ export function HomePage() {
           </h2>
           <div className="mt-16 border-t border-[#532c1633]" aria-hidden="true" />
         </div>
-        {reduceMotion ? (
-          <div className="mx-auto flex w-full max-w-[1360px] flex-col gap-16 px-4 py-16 min-[768px]:px-6 min-[992px]:px-0">
-            {services.map((service) => (
-              <article key={service.slug} className="grid items-center gap-8 min-[992px]:grid-cols-[23.25rem_minmax(0,1fr)_24.9rem] min-[992px]:gap-10">
-                <div className="hidden min-[992px]:block" aria-hidden="true" />
-                <img src={service.image} alt={service.imageAlt} className="aspect-[4/5] w-full rounded-lg object-cover min-[992px]:aspect-auto min-[992px]:h-[32rem]" />
-                <div className="flex flex-col gap-5">
-                  <p className="font-mono text-base text-[#898b8d]">[ {service.index}/04 ]</p>
-                  <h3 className="font-heading text-2xl font-semibold uppercase leading-[1.2] min-[768px]:text-[2.5rem]">
-                    <Link to={`/services?tab=${service.slug}`}>{service.title}</Link>
-                  </h3>
-                  <p className="text-[1.25rem] leading-[1.5]">{service.summary}</p>
-                  {service === services[services.length - 1] && (
-                    <Button href="/services" className="mt-8 w-fit">
-                      Ver servicios
-                    </Button>
-                  )}
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : (
         <div ref={scopeTrackRef} className="scope-track relative h-[210vh]">
           <div className="sticky top-0 flex h-svh items-start overflow-x-clip pt-6 min-[992px]:pt-10">
             <div className="relative mx-auto h-[min(51.875rem,calc(100svh-5.5rem))] w-full max-w-[1360px] px-4 min-[768px]:px-6 min-[992px]:h-[min(51.875rem,calc(100svh-2.5rem))] min-[992px]:px-0">
@@ -688,7 +653,6 @@ export function HomePage() {
             </div>
           </div>
         </div>
-        )}
       </section>
 
       <section className="bg-tan" aria-labelledby="stats-heading">
