@@ -15,7 +15,7 @@ export function ProjectsPage() {
       <section className="page-hero" data-page-hero aria-labelledby="projects-heading">
         <img src={assets.hero} alt="" className="absolute inset-0 h-full w-full object-cover grayscale contrast-110" />
         <div className="absolute inset-0 bg-black/45" />
-        <div className="relative mx-auto flex h-dvh w-full max-w-[1360px] flex-col justify-center px-4 md:px-6 lg:px-0">
+        <div className="relative mx-auto flex h-svh w-full max-w-[1360px] flex-col justify-center px-4 md:px-6 lg:px-0">
           <h1 id="projects-heading" className="page-display max-w-[10em]">
             Hecho y entregado.
           </h1>
@@ -148,7 +148,7 @@ function FeaturedSlider() {
           </div>
         </div>
         <div
-          className="mt-12 cursor-grab select-none overflow-hidden active:cursor-grabbing"
+          className="drag-row mt-12 cursor-grab select-none overflow-hidden active:cursor-grabbing"
           onPointerDown={(event) => {
             if (event.button !== 0) return;
             dragRef.current = { active: true, x: event.clientX, dx: 0 };
@@ -181,7 +181,7 @@ function FeaturedSlider() {
         >
           <div
             className={`flex w-full gap-4 ${dragging ? "" : "transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]"}`}
-            style={{ transform: `translate3d(calc(${-slide} * (75.66% + 1rem) + ${drag}px), 0, 0)`, touchAction: "pan-y" }}
+            style={{ transform: `translate3d(calc(${-slide} * (75.66% + 1rem) + ${drag}px), 0, 0)` }}
           >
             {featured.map((project) => (
               <article key={project.slug} className="flex w-[86%] shrink-0 flex-col gap-6 bg-dark-tan p-4 text-ink min-[992px]:h-[34.5rem] min-[992px]:w-[75.66%] min-[992px]:flex-row min-[992px]:gap-12 min-[992px]:p-6">

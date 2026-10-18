@@ -44,7 +44,7 @@ export function ServicesPage() {
       <section className="page-hero" data-page-hero aria-labelledby="services-heading">
         <img src={assets.pour} alt="" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-black/45" />
-        <div className="relative mx-auto flex h-dvh w-full max-w-[1360px] flex-col justify-end px-4 pb-24 md:px-6 lg:px-0 lg:pb-40">
+        <div className="relative mx-auto flex h-svh w-full max-w-[1360px] flex-col justify-end px-4 pb-24 md:px-6 lg:px-0 lg:pb-40">
           <h1 id="services-heading" className="page-display max-w-[11em]">
             Donde arranca el piso.
           </h1>
@@ -123,7 +123,7 @@ export function ServicesPage() {
         </div>
       </section>
 
-      <section className="relative h-dvh text-tan" aria-labelledby="expertise-heading">
+      <section className="relative h-svh text-tan" aria-labelledby="expertise-heading">
         <video className="absolute inset-0 h-full w-full object-cover" autoPlay muted loop playsInline poster={assets.hero}>
           <source src={assets.heroVideo} type="video/mp4" />
         </video>

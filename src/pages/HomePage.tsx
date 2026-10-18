@@ -13,6 +13,7 @@ import {
   services,
   stats,
 } from "../content/site";
+import { afterLoader, bindViewport, viewportHeight, watchScrollFades } from "../viewport";
 
 const clients = [
   { src: publicUrl("logos/ypf-logo.svg"), alt: "YPF", height: "h-10" },
@@ -230,8 +231,11 @@ export function HomePage() {
   const scopeTrackRef = useRef<HTMLDivElement>(null);
   const finishLoader = useCallback(() => {
     setShowLoader(false);
-    document.documentElement.classList.remove("hero-pending");
-    document.documentElement.classList.add("hero-ready");
+    const root = document.documentElement;
+    root.classList.remove("hero-pending", "hero-ready");
+    void root.offsetWidth;
+    root.classList.add("hero-ready");
+    window.dispatchEvent(new Event("bmp-loader-done"));
   }, []);
 
   useEffect(() => {
@@ -298,8 +302,10 @@ export function HomePage() {
     let frame = 0;
 
     const apply = (progress: number) => {
+      const full = viewportHeight();
+      document.documentElement.style.setProperty("--vvh", `${full}px`);
       color.style.height = `${between(progress, 0.425, 0.6, 100, 0)}%`;
-      sticky.style.height = `${between(progress, 0.7, 1, 100, 0)}dvh`;
+      sticky.style.height = `${between(progress, 0.7, 1, full, 0)}px`;
       copy.style.opacity = String(between(progress, 0.405, 0.425, 1, 0));
       copy.style.transform = `translate3d(0, ${between(progress, 0.405, 0.55, 0, 20)}em, 0)`;
       if (header) {
@@ -314,7 +320,7 @@ export function HomePage() {
     };
 
     const measure = () => {
-      const viewport = window.innerHeight;
+      const viewport = viewportHeight();
       const top = hero.getBoundingClientRect().top + window.scrollY;
       const start = top - viewport;
       const end = top + hero.offsetHeight;
@@ -351,29 +357,25 @@ export function HomePage() {
     target = measure();
     shown = target;
     apply(shown);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    const unbind = bindViewport(onScroll);
+    window.addEventListener("bmp-loader-done", onScroll);
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      unbind();
+      window.removeEventListener("bmp-loader-done", onScroll);
       if (frame) window.cancelAnimationFrame(frame);
       if (header) header.style.opacity = "";
     };
   }, []);
 
   useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
-    const nodes = document.querySelectorAll(".scroll-fade");
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("is-in");
-        observer.unobserve(entry.target);
-      });
+    let stop = () => {};
+    const cancelWait = afterLoader(() => {
+      stop = watchScrollFades();
     });
-    nodes.forEach((node) => observer.observe(node));
-    return () => observer.disconnect();
+    return () => {
+      cancelWait();
+      stop();
+    };
   }, []);
 
   useEffect(() => {
@@ -396,7 +398,7 @@ export function HomePage() {
 
     const measure = () => {
       const rect = track.getBoundingClientRect();
-      const total = rect.height - window.innerHeight;
+      const total = rect.height - viewportHeight();
       const scrolled = total <= 0 ? 0 : Math.min(1, Math.max(0, -rect.top / total));
       const stops: Array<[number, number]> = [
         [0, 0],
@@ -441,11 +443,11 @@ export function HomePage() {
     target = measure();
     shown = target;
     setScopePos(shown);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    const unbind = bindViewport(onScroll);
+    window.addEventListener("bmp-loader-done", onScroll);
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      unbind();
+      window.removeEventListener("bmp-loader-done", onScroll);
       if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);
@@ -453,21 +455,21 @@ export function HomePage() {
   return (
     <>
       {showLoader && <IntroLoader onDone={finishLoader} />}
-      <section ref={heroRef} className="home-hero relative h-[150vh] bg-tan" aria-labelledby="hero-heading">
-        <div ref={stickyRef} className="sticky top-0 h-dvh overflow-hidden bg-tan">
+      <section ref={heroRef} className="home-hero relative h-[150svh] bg-tan" aria-labelledby="hero-heading">
+        <div ref={stickyRef} className="sticky top-0 h-svh overflow-hidden bg-tan">
           <div
-            className="pointer-events-none absolute inset-x-0 top-0 h-dvh bg-cover bg-center bg-no-repeat grayscale contrast-110"
+            className="hero-fill pointer-events-none absolute inset-x-0 top-0 bg-cover bg-center bg-no-repeat grayscale contrast-110"
             style={{ backgroundImage: `url(${assets.hero})` }}
           />
           <div ref={colorRef} className="home-hero-plate pointer-events-none absolute inset-x-0 top-0 h-full overflow-hidden will-change-[height]">
             <div
-              className="absolute inset-x-0 top-0 h-dvh bg-cover bg-center bg-no-repeat"
+              className="hero-fill absolute inset-x-0 top-0 bg-cover bg-center bg-no-repeat"
               style={{ backgroundImage: `url(${assets.hero})` }}
             />
-            <div className="absolute inset-x-0 top-0 h-dvh bg-gradient-to-b from-black/55 via-black/35 to-black/55" />
+            <div className="hero-fill absolute inset-x-0 top-0 bg-gradient-to-b from-black/55 via-black/35 to-black/55" />
           </div>
           <div ref={copyRef} className="absolute inset-0 z-10">
-            <div className="mx-auto flex h-full w-full max-w-[1360px] flex-col items-center justify-center gap-6 px-4 pb-8 pt-[5.7rem] text-center text-tan md:gap-8 md:pt-28 lg:gap-64 lg:px-0 lg:pb-14 lg:pt-[13.5rem]">
+            <div className="hero-copy mx-auto flex h-full w-full max-w-[1360px] flex-col items-center justify-center gap-6 px-4 pb-8 pt-[5.7rem] text-center text-tan md:gap-8 md:pt-28 lg:gap-64 lg:px-0 lg:pb-14 lg:pt-[13.5rem]">
               <h1 id="hero-heading" className="hero-title font-heading text-[clamp(2.35rem,12vw,3rem)] font-semibold uppercase leading-[1.2] md:text-[4rem] lg:text-[4.875rem]">
                 <span className="block">Pisos para</span>
                 obra exigente.
@@ -478,7 +480,7 @@ export function HomePage() {
                 </p>
                 <button
                   type="button"
-                  className="group relative mx-auto block h-[8.1875rem] w-[14.5625rem] overflow-hidden rounded-lg lg:absolute lg:right-0 lg:top-1/2 lg:mx-0 lg:h-[6.625rem] lg:w-[11.8125rem] lg:-translate-y-1/2"
+                  className="hero-video group relative mx-auto block h-[8.1875rem] w-[14.5625rem] overflow-hidden rounded-lg lg:absolute lg:right-0 lg:top-1/2 lg:mx-0 lg:h-[6.625rem] lg:w-[11.8125rem] lg:-translate-y-1/2"
                   aria-label="Reproducir video"
                   onClick={() => setVideoOpen(true)}
                 >
@@ -551,7 +553,7 @@ export function HomePage() {
           <img src={assets.yard} alt={imageCredit} className="h-full w-full object-cover" />
           <div className="absolute inset-0 bg-black/40" />
         </div>
-        <div className="relative mx-auto flex min-h-dvh w-full max-w-[1360px] flex-col justify-end gap-16 px-4 min-[768px]:gap-24 min-[768px]:px-6 min-[992px]:px-0">
+        <div className="relative mx-auto flex min-h-svh w-full max-w-[1360px] flex-col justify-end gap-16 px-4 min-[768px]:gap-24 min-[768px]:px-6 min-[992px]:px-0">
           <div className="scroll-fade flex flex-col items-start gap-6">
             <h2 id="all-in-heading" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] min-[768px]:text-[3.5rem]">
               El oficio,
@@ -644,9 +646,9 @@ export function HomePage() {
             ))}
           </div>
         ) : (
-        <div ref={scopeTrackRef} className="scope-track relative h-[210vh] overflow-x-clip">
-          <div className="sticky top-0 flex h-dvh items-start pt-6 min-[992px]:pt-10">
-            <div className="relative mx-auto h-[min(51.875rem,calc(100dvh-5.5rem))] w-full max-w-[1360px] px-4 min-[768px]:px-6 min-[992px]:h-[min(51.875rem,calc(100dvh-2.5rem))] min-[992px]:px-0">
+        <div ref={scopeTrackRef} className="scope-track relative h-[210vh]">
+          <div className="sticky top-0 flex h-svh items-start overflow-x-clip pt-6 min-[992px]:pt-10">
+            <div className="relative mx-auto h-[min(51.875rem,calc(100svh-5.5rem))] w-full max-w-[1360px] px-4 min-[768px]:px-6 min-[992px]:h-[min(51.875rem,calc(100svh-2.5rem))] min-[992px]:px-0">
               {services.map((service, index) => {
                 const card = scopeFrame(index, scopePos, compactScope);
                 return (
@@ -769,7 +771,7 @@ export function HomePage() {
             </div>
           </div>
           <div
-            className="mt-16 cursor-grab select-none overflow-hidden active:cursor-grabbing"
+            className="drag-row mt-16 cursor-grab select-none overflow-hidden active:cursor-grabbing"
             onDragStart={(event) => event.preventDefault()}
             onPointerDown={(event) => {
               if (event.button !== 0) return;
@@ -803,7 +805,7 @@ export function HomePage() {
           >
             <div
               className={`flex w-full gap-4 ${workDragging ? "" : "transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]"}`}
-              style={{ transform: `translate3d(calc(${-slide} * (75.66% + 1rem) + ${workDrag}px), 0, 0)`, touchAction: "pan-y" }}
+              style={{ transform: `translate3d(calc(${-slide} * (75.66% + 1rem) + ${workDrag}px), 0, 0)` }}
             >
               {featured.map((project) => (
                 <article key={project.slug} className="flex w-[75.66%] shrink-0 flex-col gap-6 rounded-lg bg-tan p-4 text-ink min-[992px]:h-[28.875rem] min-[992px]:flex-row min-[992px]:gap-12 min-[992px]:p-6">

@@ -7,6 +7,7 @@ const HOLD_MS = 180;
 const FILL_DONE_MS = FILL_DELAY_MS + FILL_MS + HOLD_MS;
 const DOT_FADE_MS = 280;
 const EXPAND_MS = 1700;
+const FONT_WAIT_MS = 900;
 
 export function IntroLoader({ onDone }: { onDone: () => void }) {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -22,6 +23,13 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
     const shell = shellRef.current;
     if (!word || !shell) return;
 
+    const pinShell = () => {
+      const viewport = window.visualViewport;
+      const height = viewport?.height ?? window.innerHeight;
+      shell.style.height = `${Math.round(height)}px`;
+      shell.style.top = `${Math.round(viewport?.offsetTop ?? 0)}px`;
+    };
+
     const placePhoto = () => {
       const period = word.querySelector<HTMLElement>(".loader-outline .loader-period");
       const photo = dotRef.current;
@@ -36,6 +44,7 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
 
     const fit = () => {
       if (openingRef.current) return;
+      pinShell();
       const line = word.querySelector<HTMLElement>(".loader-outline");
       if (!line) return;
       const shellStyle = getComputedStyle(shell);
@@ -58,33 +67,32 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
     };
 
     fitRef.current = fit;
+    fit();
+    word.classList.add("is-shown");
     window.addEventListener("resize", fit);
     window.visualViewport?.addEventListener("resize", fit);
+    window.visualViewport?.addEventListener("scroll", fit);
     return () => {
       window.removeEventListener("resize", fit);
       window.visualViewport?.removeEventListener("resize", fit);
+      window.visualViewport?.removeEventListener("scroll", fit);
     };
   }, [reduce]);
 
   useEffect(() => {
-    const lockedY = window.scrollY;
     document.documentElement.classList.add("is-loader-locked");
     document.body.classList.add("is-loader-locked");
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${lockedY}px`;
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    document.body.style.width = "100%";
+
+    const blockTouch = (event: TouchEvent) => {
+      if (event.cancelable) event.preventDefault();
+    };
+    document.addEventListener("touchmove", blockTouch, { passive: false });
 
     const unlock = () => {
       document.documentElement.classList.remove("is-loader-locked");
       document.body.classList.remove("is-loader-locked");
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      document.body.style.width = "";
-      window.scrollTo(0, lockedY);
+      document.removeEventListener("touchmove", blockTouch);
+      window.scrollTo(0, 0);
     };
 
     if (reduce) {
@@ -95,18 +103,20 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
 
     let cancelled = false;
     let timer = 0;
+    let watchdog = 0;
     const dot = dotRef.current;
     const shell = shellRef.current;
     const word = wordRef.current;
 
     const begin = async () => {
-      try {
-        await document.fonts.load('600 100px "Geom Graphic"');
-      } catch {
-        /* show the fallback only if the brand font never arrives */
-      }
+      await Promise.race([
+        document.fonts.load('600 100px "Geom Graphic"').catch(() => undefined),
+        new Promise((resolve) => window.setTimeout(resolve, FONT_WAIT_MS)),
+      ]);
       if (cancelled || !word) return;
       fitRef.current();
+      word.classList.remove("is-ready");
+      void word.offsetWidth;
       word.classList.add("is-ready");
       timer = window.setTimeout(open, FILL_DONE_MS);
     };
@@ -115,6 +125,21 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
       if (cancelled || !dot || !shell || !word) return;
       openingRef.current = true;
       shell.classList.add("is-opening");
+      let settled = false;
+
+      const finish = () => {
+        if (cancelled || settled) return;
+        settled = true;
+        window.clearTimeout(watchdog);
+        window.setTimeout(() => {
+          if (!cancelled) {
+            unlock();
+            onDone();
+          }
+        }, 180);
+      };
+
+      watchdog = window.setTimeout(finish, DOT_FADE_MS + EXPAND_MS + 700);
 
       const from = dot.getBoundingClientRect();
       const to = shell.getBoundingClientRect();
@@ -125,52 +150,48 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
       const parked = {
         left: `${from.left}px`,
         top: `${from.top}px`,
-        width: `${from.width}px`,
-        height: `${from.height}px`,
+        width: `${Math.max(from.width, 1)}px`,
+        height: `${Math.max(from.height, 1)}px`,
         borderRadius: "22%",
       };
 
-      const fade = dot.animate([{ ...parked, opacity: 0 }, { ...parked, opacity: 1 }], {
-        duration: DOT_FADE_MS,
-        easing: "cubic-bezier(0.25, 0.1, 0.25, 1)",
-        fill: "forwards",
-      });
+      try {
+        const fade = dot.animate([{ ...parked, opacity: 0 }, { ...parked, opacity: 1 }], {
+          duration: DOT_FADE_MS,
+          easing: "cubic-bezier(0.25, 0.1, 0.25, 1)",
+          fill: "forwards",
+        });
 
-      fade.finished
-        .then(() => {
-          if (cancelled) return;
-          word.querySelectorAll<HTMLElement>(".loader-period").forEach((period) => {
-            period.style.opacity = "0";
-          });
-          return dot.animate(
-            [
-              { ...parked, opacity: 1 },
+        fade.finished
+          .then(() => {
+            if (cancelled) return;
+            word.querySelectorAll<HTMLElement>(".loader-period").forEach((period) => {
+              period.style.opacity = "0";
+            });
+            return dot.animate(
+              [
+                { ...parked, opacity: 1 },
+                {
+                  left: `${to.left}px`,
+                  top: `${to.top}px`,
+                  width: `${to.width}px`,
+                  height: `${to.height}px`,
+                  borderRadius: "0px",
+                  opacity: 1,
+                },
+              ],
               {
-                left: `${to.left}px`,
-                top: `${to.top}px`,
-                width: `${to.width}px`,
-                height: `${to.height}px`,
-                borderRadius: "0px",
-                opacity: 1,
+                duration: EXPAND_MS,
+                easing: "cubic-bezier(0.76, 0, 0.18, 1)",
+                fill: "forwards",
               },
-            ],
-            {
-              duration: EXPAND_MS,
-              easing: "cubic-bezier(0.76, 0, 0.18, 1)",
-              fill: "forwards",
-            },
-          ).finished;
-        })
-        .then(() => {
-          if (cancelled) return;
-          window.setTimeout(() => {
-            if (!cancelled) {
-              unlock();
-              onDone();
-            }
-          }, 180);
-        })
-        .catch(() => undefined);
+            ).finished;
+          })
+          .then(() => finish())
+          .catch(() => finish());
+      } catch {
+        finish();
+      }
     };
 
     void begin();
@@ -178,6 +199,7 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
+      window.clearTimeout(watchdog);
       dot?.getAnimations().forEach((animation) => animation.cancel());
       unlock();
     };
@@ -188,7 +210,7 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
   return (
     <div
       ref={shellRef}
-      className="loader-shell fixed inset-0 z-[200] flex h-dvh w-full items-center justify-center overflow-hidden bg-blue"
+      className="loader-shell z-[200] flex w-full items-center justify-center overflow-hidden bg-blue"
       role="status"
       aria-label="Loading BM PISOS."
     >

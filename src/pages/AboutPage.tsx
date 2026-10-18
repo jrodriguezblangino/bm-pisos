@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowIcon, Button, SlideLabel } from "../components/Button";
 import { ClosingBand } from "../components/ClosingBand";
 import { assets, careerStories, coverage, jobBySlug, jobs, team, values } from "../content/site";
+import { bindViewport, viewportHeight } from "../viewport";
 
 const valueWords = ["Oficio", "Claridad", "Criterio", "Terminación", "Región", "Detalle"];
 const slideImages = [assets.floor, assets.hall, assets.pour, assets.hero, assets.yard];
@@ -13,7 +14,7 @@ export function AboutPage() {
       <section className="page-hero" data-page-hero aria-labelledby="legacy-heading">
         <img src={assets.hall} alt="" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-black/40" />
-        <div className="relative mx-auto flex h-dvh w-full max-w-[1360px] flex-col items-center justify-center px-4 text-center md:px-6 lg:px-0">
+        <div className="relative mx-auto flex h-svh w-full max-w-[1360px] flex-col items-center justify-center px-4 text-center md:px-6 lg:px-0">
           <h1 id="legacy-heading" className="page-display max-w-[14em]">
             El estándar es el piso.
           </h1>
@@ -178,17 +179,12 @@ function ValueTrack() {
     if (reduce) return;
     const onScroll = () => {
       const rect = track.getBoundingClientRect();
-      const total = rect.height - window.innerHeight;
+      const total = rect.height - viewportHeight();
       const scrolled = total <= 0 ? 0 : Math.min(0.999, Math.max(0, -rect.top / total));
       setIndex(Math.min(count - 1, Math.floor(scrolled * count)));
     };
     onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
+    return bindViewport(onScroll);
   }, [count]);
 
   const jump = (next: number) => {
@@ -197,7 +193,7 @@ function ValueTrack() {
     setIndex(clamped);
     if (!track) return;
     const top = window.scrollY + track.getBoundingClientRect().top;
-    const total = track.offsetHeight - window.innerHeight;
+    const total = track.offsetHeight - viewportHeight();
     window.scrollTo({ top: top + (clamped / Math.max(1, count - 1)) * total, behavior: "smooth" });
   };
 
@@ -205,7 +201,7 @@ function ValueTrack() {
 
   return (
     <section id="our-values" ref={trackRef} className="relative h-auto bg-ink text-tan lg:h-[400vh]" aria-labelledby="values-heading">
-      <div className="lg:sticky lg:top-0 lg:flex lg:h-dvh lg:flex-col">
+      <div className="lg:sticky lg:top-0 lg:flex lg:h-svh lg:flex-col">
         <div className="mx-auto flex w-full max-w-[1360px] flex-1 flex-col px-4 py-24 md:px-6 lg:px-0 lg:py-16">
           <div className="flex flex-col items-start justify-between gap-6 min-[768px]:flex-row min-[768px]:items-end">
             <h2 id="values-heading" className="max-w-[12em] font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] lg:text-[4rem]">

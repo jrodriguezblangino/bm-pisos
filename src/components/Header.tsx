@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { logos, nav } from "../content/site";
+import { bindViewport, viewportHeight } from "../viewport";
 
 function RiseLabel({ text }: { text: string }) {
   const chars = [...text];
@@ -51,18 +52,13 @@ export function Header() {
     }
     const onScroll = () => {
       if (pathname === "/") {
-        setOnDark(window.scrollY < window.innerHeight * 0.46);
+        setOnDark(window.scrollY < viewportHeight() * 0.46);
         return;
       }
       setOnDark(hero.getBoundingClientRect().bottom > 72);
     };
     onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
+    return bindViewport(onScroll);
   }, [pathname]);
 
   useEffect(() => {
@@ -123,11 +119,11 @@ export function Header() {
       apply();
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
+    const unbind = bindViewport(onScroll);
     window.addEventListener("pointermove", onPointer, { passive: true });
     document.documentElement.addEventListener("mouseleave", onLeave);
     return () => {
-      window.removeEventListener("scroll", onScroll);
+      unbind();
       window.removeEventListener("pointermove", onPointer);
       document.documentElement.removeEventListener("mouseleave", onLeave);
       header.style.transform = "";
@@ -210,7 +206,7 @@ export function Header() {
   const solid = !onDark || open;
 
   return (
-    <header className={`fixed inset-x-0 top-0 z-[80] ${solid ? "nav-bar" : ""} ${open ? "nav-menu-open" : ""} ${peek ? "nav-peek" : ""}`}>
+    <header className={`site-header fixed inset-x-0 top-0 z-[80] ${solid ? "nav-bar" : ""} ${open ? "nav-menu-open" : ""} ${peek ? "nav-peek" : ""}`}>
       <div className="nav-shell mx-auto flex w-full max-w-[1360px] items-center justify-between px-4 py-3 min-[768px]:px-6 min-[768px]:py-4 min-[992px]:px-0 min-[992px]:py-5">
         <Link to="/" aria-label="BMP Pisos Alisados" className="relative z-[90] flex h-11 shrink-0 items-center min-[768px]:h-14">
           <img src={logos.mark} alt="" className="h-10 w-auto rounded-md bg-tan min-[768px]:h-12" />
