@@ -224,7 +224,8 @@ export function HomePage() {
   const [compactScope, setCompactScope] = useState(() => window.matchMedia("(max-width: 991px)").matches);
   const heroRef = useRef<HTMLElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
-  const colorRef = useRef<HTMLDivElement>(null);
+  const colorRef = useRef<HTMLImageElement>(null);
+  const shadeRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
   const scopeTrackRef = useRef<HTMLDivElement>(null);
   const finishLoader = useCallback(() => {
@@ -278,8 +279,9 @@ export function HomePage() {
     const hero = heroRef.current;
     const sticky = stickyRef.current;
     const color = colorRef.current;
+    const shade = shadeRef.current;
     const copy = copyRef.current;
-    if (!hero || !sticky || !color || !copy) return;
+    if (!hero || !sticky || !color || !shade || !copy) return;
 
     const header = document.querySelector("header");
 
@@ -293,13 +295,33 @@ export function HomePage() {
     let shown = 0;
     let frame = 0;
 
+    const smooth = (value: number) => {
+      const x = Math.min(1, Math.max(0, value));
+      return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+    };
+
     const apply = (progress: number) => {
       const full = viewportHeight();
-      document.documentElement.style.setProperty("--vvh", `${full}px`);
-      color.style.height = `${between(progress, 0.425, 0.6, 100, 0)}%`;
-      sticky.style.height = `${between(progress, 0.7, 1, full, 0)}px`;
-      copy.style.opacity = String(between(progress, 0.405, 0.425, 1, 0));
-      copy.style.transform = `translate3d(0, ${between(progress, 0.405, 0.55, 0, 20)}em, 0)`;
+      const reveal = smooth(between(progress, 0.48, 0.7, 0, 1));
+      const feather = 8.5 * Math.sin(reveal * Math.PI);
+      const edge = (1 - reveal) * 100;
+      if (reveal <= 0.001) {
+        color.style.opacity = "1";
+        color.style.maskImage = "none";
+        color.style.setProperty("-webkit-mask-image", "none");
+      } else if (reveal >= 0.999) {
+        color.style.opacity = "0";
+      } else {
+        const mask = `linear-gradient(to bottom, #000 ${Math.max(0, edge - feather)}%, transparent ${Math.min(100, edge + feather * 0.2)}%)`;
+        color.style.opacity = "1";
+        color.style.maskImage = mask;
+        color.style.setProperty("-webkit-mask-image", mask);
+      }
+      sticky.style.height = `${between(progress, 0.74, 1, full, 0)}px`;
+      const copyOpacity = between(progress, 0.4, 0.52, 1, 0);
+      copy.style.opacity = String(copyOpacity);
+      copy.style.transform = `translate3d(0, ${between(progress, 0.4, 0.56, 0, 20)}em, 0)`;
+      shade.style.opacity = String(copyOpacity);
       if (header) {
         if (window.matchMedia("(min-width: 992px)").matches) {
           const hidden = between(progress, 0.405, 0.41, 1, 0);
@@ -329,7 +351,7 @@ export function HomePage() {
         frame = 0;
         return;
       }
-      shown += delta * 0.1;
+      shown += delta * 0.2;
       apply(shown);
       frame = window.requestAnimationFrame(settle);
     };
@@ -387,11 +409,12 @@ export function HomePage() {
       const scrolled = total <= 0 ? 0 : Math.min(1, Math.max(0, -rect.top / total));
       const stops: Array<[number, number]> = [
         [0, 0],
-        [0.12, 0],
-        [0.32, 1],
-        [0.4, 1],
-        [0.58, 2],
-        [0.66, 2],
+        [0.18, 0],
+        [0.3, 1],
+        [0.48, 1],
+        [0.6, 2],
+        [0.78, 2],
+        [0.9, steps],
         [1, steps],
       ];
       let pos = steps;
@@ -400,7 +423,9 @@ export function HomePage() {
           const [start, from] = stops[i - 1];
           const [end, to] = stops[i];
           const span = end - start;
-          pos = from + (to - from) * (span === 0 ? 1 : (scrolled - start) / span);
+          const linear = span === 0 ? 1 : (scrolled - start) / span;
+          const eased = linear < 0.5 ? 2 * linear * linear : 1 - Math.pow(-2 * linear + 2, 2) / 2;
+          pos = from + (to - from) * eased;
           break;
         }
       }
@@ -415,7 +440,7 @@ export function HomePage() {
         frame = 0;
         return;
       }
-      shown += delta * 0.12;
+      shown += delta * 0.2;
       setScopePos(shown);
       frame = window.requestAnimationFrame(settle);
     };
@@ -444,16 +469,10 @@ export function HomePage() {
       {showLoader && <IntroLoader onDone={finishLoader} />}
       <section ref={heroRef} className="home-hero relative h-[150svh] bg-tan" aria-labelledby="hero-heading">
         <div ref={stickyRef} className="sticky top-0 h-svh overflow-hidden bg-tan">
-          <div
-            className="hero-fill pointer-events-none absolute inset-x-0 top-0 bg-cover bg-center bg-no-repeat grayscale contrast-110"
-            style={{ backgroundImage: `url(${assets.hero})` }}
-          />
-          <div ref={colorRef} className="home-hero-plate pointer-events-none absolute inset-x-0 top-0 h-full overflow-hidden will-change-[height]">
-            <div
-              className="hero-fill absolute inset-x-0 top-0 bg-cover bg-center bg-no-repeat"
-              style={{ backgroundImage: `url(${assets.hero})` }}
-            />
-            <div className="hero-fill absolute inset-x-0 top-0 bg-gradient-to-b from-black/55 via-black/35 to-black/55" />
+          <div className="hero-stage">
+            <img src={assets.hero} alt="" className="hero-photo hero-photo-bw" width={1600} height={1066} />
+            <img ref={colorRef} src={assets.hero} alt="" className="hero-photo" width={1600} height={1066} />
+            <div ref={shadeRef} className="hero-shade" />
           </div>
           <div ref={copyRef} className="absolute inset-0 z-10">
             <div className="hero-copy mx-auto flex h-full w-full max-w-[1360px] flex-col items-center justify-center gap-6 px-4 pb-8 pt-[5.7rem] text-center text-tan md:gap-8 md:pt-28 lg:gap-64 lg:px-0 lg:pb-14 lg:pt-[13.5rem]">
@@ -540,7 +559,7 @@ export function HomePage() {
           <img src={assets.yard} alt={imageCredit} className="h-full w-full object-cover" />
           <div className="absolute inset-0 bg-black/40" />
         </div>
-        <div className="relative mx-auto flex min-h-svh w-full max-w-[1360px] flex-col justify-end gap-16 px-4 min-[768px]:gap-24 min-[768px]:px-6 min-[992px]:px-0">
+        <div className="relative mx-auto flex min-h-svh w-full max-w-[1360px] flex-col justify-end gap-16 px-4 pt-32 min-[768px]:gap-24 min-[768px]:px-6 min-[768px]:pt-36 min-[992px]:px-0 min-[992px]:pt-40">
           <div className="scroll-fade flex flex-col items-start gap-6">
             <h2 id="all-in-heading" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] min-[768px]:text-[3.5rem]">
               El oficio,
@@ -605,13 +624,13 @@ export function HomePage() {
       </section>
 
       <section className="bg-tan" aria-labelledby="scope-heading">
-        <div className="mx-auto w-full max-w-[1360px] px-4 pt-20 min-[768px]:px-6 min-[768px]:pt-24 min-[992px]:px-0 min-[992px]:pt-28">
+        <div className="mx-auto w-full max-w-[1360px] px-4 pt-32 min-[768px]:px-6 min-[768px]:pt-40 min-[992px]:px-0 min-[992px]:pt-48">
           <h2 id="scope-heading" className="scroll-fade text-center font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] min-[992px]:text-[4.875rem]">
             Pisos de hormigón, según la obra
           </h2>
           <div className="mt-16 border-t border-[#532c1633]" aria-hidden="true" />
         </div>
-        <div ref={scopeTrackRef} className="scope-track relative h-[210vh]">
+        <div ref={scopeTrackRef} className={`scope-track relative ${compactScope ? "h-[400vh]" : "h-[260vh]"}`}>
           <div className="sticky top-0 flex h-svh items-start overflow-x-clip pt-6 min-[992px]:pt-10">
             <div className="relative mx-auto h-[min(51.875rem,calc(100svh-5.5rem))] w-full max-w-[1360px] px-4 min-[768px]:px-6 min-[992px]:h-[min(51.875rem,calc(100svh-2.5rem))] min-[992px]:px-0">
               {services.map((service, index) => {
@@ -812,13 +831,16 @@ export function HomePage() {
           Cómo se encara<br /> una obra.
         </h2>
         <div className="trust-gap scroll-fade scroll-fade-late w-full">
-          <div className="trust-marquee">
+          <div className="trust-marquee is-brisk">
             {[0, 1, 2].map((copy) => (
               <ul key={copy} className="trust-marquee-track list-none" aria-hidden={copy > 0 || undefined}>
-                {principles.map((item) => (
-                  <li key={`${item.title}-${copy}`} className="trust-card bg-tan">
+                {principles.map((item, index) => (
+                  <li key={`${item.title}-${copy}`} className="trust-card is-principle bg-tan">
+                    <div>
+                      <p className="trust-index">[ 0{index + 1} ]</p>
+                      <h3 className="trust-name font-heading">{item.title}</h3>
+                    </div>
                     <p className="trust-quote">{item.body}</p>
-                    <h3 className="trust-name font-heading">{item.title}</h3>
                   </li>
                 ))}
               </ul>

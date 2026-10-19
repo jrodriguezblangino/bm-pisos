@@ -1,9 +1,8 @@
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowIcon, Button, SlideLabel } from "../components/Button";
 import { ClosingBand } from "../components/ClosingBand";
 import { assets, careerStories, coverage, jobBySlug, jobs, team, values } from "../content/site";
-import { bindViewport, viewportHeight } from "../viewport";
 
 const valueWords = ["Oficio", "Claridad", "Criterio", "Terminación", "Región", "Detalle"];
 const slideImages = [assets.floor, assets.hall, assets.pour, assets.hero, assets.yard];
@@ -168,38 +167,13 @@ export function AboutPage() {
 }
 
 function ValueTrack() {
-  const trackRef = useRef<HTMLElement>(null);
   const [index, setIndex] = useState(0);
   const count = values.length;
-
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-    const onScroll = () => {
-      const rect = track.getBoundingClientRect();
-      const total = rect.height - viewportHeight();
-      const scrolled = total <= 0 ? 0 : Math.min(0.999, Math.max(0, -rect.top / total));
-      setIndex(Math.min(count - 1, Math.floor(scrolled * count)));
-    };
-    onScroll();
-    return bindViewport(onScroll);
-  }, [count]);
-
-  const jump = (next: number) => {
-    const track = trackRef.current;
-    const clamped = Math.min(count - 1, Math.max(0, next));
-    setIndex(clamped);
-    if (!track) return;
-    const top = window.scrollY + track.getBoundingClientRect().top;
-    const total = track.offsetHeight - viewportHeight();
-    window.scrollTo({ top: top + (clamped / Math.max(1, count - 1)) * total, behavior: "smooth" });
-  };
-
   const slide = values[index];
 
   return (
-    <section id="our-values" ref={trackRef} className="relative h-auto bg-ink text-tan lg:h-[400vh]" aria-labelledby="values-heading">
-      <div className="lg:sticky lg:top-0 lg:flex lg:h-svh lg:flex-col">
+    <section id="our-values" className="bg-ink text-tan" aria-labelledby="values-heading">
+      <div>
         <div className="mx-auto flex w-full max-w-[1360px] flex-1 flex-col px-4 py-24 md:px-6 lg:px-0 lg:py-16">
           <div className="flex flex-col items-start justify-between gap-6 min-[768px]:flex-row min-[768px]:items-end">
             <h2 id="values-heading" className="max-w-[12em] font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] lg:text-[4rem]">
@@ -213,8 +187,8 @@ function ValueTrack() {
                 type="button"
                 aria-label="Anterior"
                 disabled={index === 0}
-                className="work-nav-btn group grid h-12 w-12 place-items-center rounded-[4px] bg-blue disabled:pointer-events-none disabled:opacity-40"
-                onClick={() => jump(index - 1)}
+                className="work-nav-btn group grid h-12 w-12 touch-manipulation place-items-center rounded-[4px] bg-blue disabled:pointer-events-none disabled:opacity-40"
+                onClick={() => setIndex((current) => Math.max(0, current - 1))}
               >
                 <span className="work-arrow is-prev h-6 w-6">
                   <span>
@@ -229,8 +203,8 @@ function ValueTrack() {
                 type="button"
                 aria-label="Siguiente"
                 disabled={index === count - 1}
-                className="work-nav-btn group grid h-12 w-12 place-items-center rounded-[4px] bg-blue disabled:pointer-events-none disabled:opacity-40"
-                onClick={() => jump(index + 1)}
+                className="work-nav-btn group grid h-12 w-12 touch-manipulation place-items-center rounded-[4px] bg-blue disabled:pointer-events-none disabled:opacity-40"
+                onClick={() => setIndex((current) => Math.min(count - 1, current + 1))}
               >
                 <span className="work-arrow h-6 w-6">
                   <span>
@@ -243,13 +217,13 @@ function ValueTrack() {
               </button>
             </div>
           </div>
-          <div className="relative mt-8 min-h-[24rem] flex-1 overflow-hidden lg:mt-10">
+          <div className="relative mt-8 h-[min(70vh,38rem)] min-h-[22rem] overflow-hidden lg:mt-10">
             {slideImages.map((src, imageIndex) => (
               <img
                 key={imageIndex}
                 src={src}
                 alt=""
-                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${imageIndex === index ? "opacity-100" : "opacity-0"}`}
+                className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${imageIndex === index ? "opacity-100" : "pointer-events-none opacity-0"}`}
               />
             ))}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
