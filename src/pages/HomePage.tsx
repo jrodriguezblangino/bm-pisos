@@ -154,6 +154,123 @@ function CareerStack() {
   );
 }
 
+function PrincipleMarquee() {
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const tracks = () => [...root.querySelectorAll<HTMLElement>(".trust-marquee-track")];
+    const clips = (track: HTMLElement) => track.getAnimations();
+
+    const durationOf = () => {
+      const timing = clips(tracks()[0])[0]?.effect?.getComputedTiming();
+      return typeof timing?.duration === "number" ? timing.duration : 0;
+    };
+
+    const timeOf = () => {
+      const time = clips(tracks()[0])[0]?.currentTime;
+      return typeof time === "number" ? time : 0;
+    };
+
+    const setTime = (ms: number) => {
+      const duration = durationOf();
+      if (!duration) return;
+      const next = ((ms % duration) + duration) % duration;
+      for (const track of tracks()) {
+        for (const animation of clips(track)) animation.currentTime = next;
+      }
+    };
+
+    const pause = () => {
+      for (const track of tracks()) clips(track).forEach((animation) => animation.pause());
+    };
+
+    const play = () => {
+      for (const track of tracks()) clips(track).forEach((animation) => animation.play());
+    };
+
+    let pointerId = -1;
+    let startX = 0;
+    let startY = 0;
+    let lastX = 0;
+    let dragging = false;
+
+    const onDown = (event: PointerEvent) => {
+      if (event.button !== 0 || pointerId !== -1) return;
+      pointerId = event.pointerId;
+      startX = lastX = event.clientX;
+      startY = event.clientY;
+      dragging = false;
+    };
+
+    const onMove = (event: PointerEvent) => {
+      if (event.pointerId !== pointerId) return;
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
+      if (!dragging) {
+        if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) {
+          pointerId = -1;
+          return;
+        }
+        if (Math.abs(dx) < 8 || Math.abs(dx) <= Math.abs(dy)) return;
+        dragging = true;
+        root.classList.add("is-dragging");
+        try {
+          root.setPointerCapture(event.pointerId);
+        } catch {
+          /* A cancelled touch no longer has a pointer to capture. */
+        }
+        pause();
+      }
+      const width = tracks()[0]?.offsetWidth || 1;
+      const duration = durationOf();
+      if (duration) setTime(timeOf() - ((event.clientX - lastX) / width) * duration);
+      lastX = event.clientX;
+      event.preventDefault();
+    };
+
+    const finish = (event: PointerEvent) => {
+      if (event.pointerId !== pointerId) return;
+      pointerId = -1;
+      if (dragging) {
+        dragging = false;
+        root.classList.remove("is-dragging");
+        play();
+      }
+    };
+
+    root.addEventListener("pointerdown", onDown);
+    root.addEventListener("pointermove", onMove);
+    root.addEventListener("pointerup", finish);
+    root.addEventListener("pointercancel", finish);
+    return () => {
+      root.removeEventListener("pointerdown", onDown);
+      root.removeEventListener("pointermove", onMove);
+      root.removeEventListener("pointerup", finish);
+      root.removeEventListener("pointercancel", finish);
+    };
+  }, []);
+
+  return (
+    <div ref={rootRef} className="trust-marquee is-brisk">
+      {[0, 1, 2].map((copy) => (
+        <ul key={copy} className="trust-marquee-track list-none" aria-hidden={copy > 0 || undefined}>
+          {principles.map((item, index) => (
+            <li key={`${item.title}-${copy}`} className="trust-card is-principle bg-tan">
+              <div>
+                <p className="trust-index">[ 0{index + 1} ]</p>
+                <h3 className="trust-name font-heading">{item.title}</h3>
+              </div>
+              <p className="trust-quote">{item.body}</p>
+            </li>
+          ))}
+        </ul>
+      ))}
+    </div>
+  );
+}
+
 function StatValue({ value, suffix }: { value: number; suffix: string }) {
   const ref = useRef<HTMLElement>(null);
   const [shown, setShown] = useState(value);
@@ -831,37 +948,29 @@ export function HomePage() {
           Cómo se encara<br /> una obra.
         </h2>
         <div className="trust-gap scroll-fade scroll-fade-late w-full">
-          <div className="trust-marquee is-brisk">
-            {[0, 1, 2].map((copy) => (
-              <ul key={copy} className="trust-marquee-track list-none" aria-hidden={copy > 0 || undefined}>
-                {principles.map((item, index) => (
-                  <li key={`${item.title}-${copy}`} className="trust-card is-principle bg-tan">
-                    <div>
-                      <p className="trust-index">[ 0{index + 1} ]</p>
-                      <h3 className="trust-name font-heading">{item.title}</h3>
-                    </div>
-                    <p className="trust-quote">{item.body}</p>
-                  </li>
-                ))}
-              </ul>
-            ))}
-          </div>
+          <PrincipleMarquee />
         </div>
       </section>
 
-      <section className="overflow-x-clip bg-tan px-4 pb-[5.4375rem] pt-20 min-[992px]:px-0 min-[992px]:pb-[3.1875rem] min-[992px]:pt-28" aria-labelledby="career-heading">
-        <div className="mx-auto flex w-full max-w-[1360px] flex-col items-start gap-14 min-[992px]:flex-row min-[992px]:items-center">
-          <div className="scroll-fade w-full max-w-[43.25rem]">
+      <section className="career-copy bg-tan" aria-labelledby="career-heading">
+        <div className="mx-auto w-full max-w-[1360px]">
+          <div className="scroll-fade w-full max-w-[40rem]">
             <h2 id="career-heading" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] min-[768px]:text-[3.5rem]">
               El oficio se aprende en la obra.
             </h2>
-            <p className="mt-6 text-[1.25rem] leading-[1.5]">
+            <p className="mt-6 max-w-[38rem] text-[1.25rem] leading-[1.5]">
               No hay búsquedas publicadas. Si trabajás pisos de hormigón y querés escribir, el canal está abierto.
             </p>
             <Button href="/careers" className="career-btn group mt-8">
               <SlideLabel>Trabajar con BMP</SlideLabel>
             </Button>
           </div>
+        </div>
+      </section>
+
+      <section className="career-reel bg-tan" aria-label="Referencias en la obra">
+        <div className="career-stage">
+          <div className="career-hinge" aria-hidden="true" />
           <div className="scroll-fade scroll-fade-late w-full min-[992px]:w-auto">
             <CareerStack />
           </div>
