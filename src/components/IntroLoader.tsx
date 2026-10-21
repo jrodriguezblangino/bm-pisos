@@ -97,11 +97,8 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
       onDone();
     };
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      complete();
-      return () => undefined;
-    }
-
+    // Safari en iOS responde «reduce» a prefers-reduced-motion aunque el usuario
+    // no haya pedido quitar el splash. Cortar el intro ahí deja la página quieta.
     let cancelled = false;
     let timer = 0;
     let watchdog = 0;

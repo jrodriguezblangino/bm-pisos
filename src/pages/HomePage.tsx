@@ -196,7 +196,6 @@ export function HomePage() {
   const [videoOpen, setVideoOpen] = useState(false);
   const [scopePos, setScopePos] = useState(0);
   const [compactScope, setCompactScope] = useState(() => window.matchMedia("(max-width: 991px)").matches);
-  const [reduceMotion] = useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const heroRef = useRef<HTMLElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
   const colorRef = useRef<HTMLImageElement>(null);
@@ -248,17 +247,6 @@ export function HomePage() {
     if (!hero || !sticky || !color || !shade || !copy) return;
 
     const header = document.querySelector("header");
-    if (reduceMotion) {
-      color.style.opacity = "1";
-      color.style.maskImage = "none";
-      color.style.setProperty("-webkit-mask-image", "none");
-      sticky.style.height = "";
-      copy.style.opacity = "1";
-      copy.style.transform = "none";
-      shade.style.opacity = "1";
-      if (header) header.style.opacity = "";
-      return;
-    }
 
     const between = (progress: number, start: number, end: number, from: number, to: number) => {
       if (progress <= start) return from;
@@ -349,7 +337,7 @@ export function HomePage() {
       if (frame) window.cancelAnimationFrame(frame);
       if (header) header.style.opacity = "";
     };
-  }, [reduceMotion]);
+  }, []);
 
   useEffect(() => {
     let stop = () => {};
@@ -372,7 +360,7 @@ export function HomePage() {
 
   useEffect(() => {
     const track = scopeTrackRef.current;
-    if (!track || reduceMotion) return;
+    if (!track) return;
     const steps = services.length - 1;
     let target = 0;
     let shown = 0;
@@ -437,12 +425,12 @@ export function HomePage() {
       unbind();
       if (frame) window.cancelAnimationFrame(frame);
     };
-  }, [reduceMotion]);
+  }, []);
 
   return (
     <>
       {showLoader && <IntroLoader onDone={finishLoader} />}
-      <section ref={heroRef} className={`home-hero relative bg-tan ${reduceMotion ? "h-svh" : "h-[150svh]"}`} aria-labelledby="hero-heading">
+      <section ref={heroRef} className="home-hero relative h-[150svh] bg-tan" aria-labelledby="hero-heading">
         <div ref={stickyRef} className="sticky top-0 h-svh overflow-hidden bg-tan">
           <div className="hero-stage">
             <img src={assets.hero} alt="" className="hero-photo hero-photo-bw" width={1600} height={1066} />
@@ -495,35 +483,7 @@ export function HomePage() {
           </h2>
           <div className="mt-16 border-t border-[#532c1633]" aria-hidden="true" />
         </div>
-        {reduceMotion ? (
-          <div className="mx-auto grid w-full max-w-[1360px] gap-16 px-4 py-16 min-[768px]:px-6 min-[992px]:px-0">
-            {services.map((service) => (
-              <article key={service.slug} className="grid items-center gap-8 lg:grid-cols-2">
-                {service.image ? (
-                  <img src={service.image} alt={service.imageAlt} className="aspect-[4/3] w-full rounded-lg object-cover" />
-                ) : (
-                  <div className="type-panel min-h-64 rounded-lg">
-                    <p>[ {service.index} / 04 ]</p>
-                    <p className="type-panel-title" aria-hidden="true">{service.title}</p>
-                  </div>
-                )}
-                <div className="flex flex-col items-start gap-5">
-                  <p className="font-mono text-base tracking-[0.36em] text-[#898b8d]">[ {service.index}/04 ]</p>
-                  <h3 className="font-heading text-2xl font-semibold uppercase leading-[1.2] min-[768px]:text-[2.5rem]">
-                    <Link to={`/services?tab=${service.slug}`} className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange">
-                      {service.title}
-                    </Link>
-                  </h3>
-                  <p className="text-[1.25rem] leading-[1.5]">{service.summary}</p>
-                </div>
-              </article>
-            ))}
-            <Button href="/services" className="w-fit">
-              Ver servicios
-            </Button>
-          </div>
-        ) : (
-          <div ref={scopeTrackRef} className={`scope-track relative ${compactScope ? "h-[400vh]" : "h-[260vh]"}`}>
+        <div ref={scopeTrackRef} className={`scope-track relative ${compactScope ? "h-[400vh]" : "h-[260vh]"}`}>
             <div className="sticky top-0 flex h-svh items-start overflow-x-clip pt-6 min-[992px]:pt-10">
               <div className="relative mx-auto h-[min(51.875rem,calc(100svh-5.5rem))] w-full max-w-[1360px] px-4 min-[768px]:px-6 min-[992px]:h-[min(51.875rem,calc(100svh-2.5rem))] min-[992px]:px-0">
                 {services.map((service, index) => {
@@ -572,7 +532,6 @@ export function HomePage() {
               </div>
             </div>
           </div>
-        )}
       </section>
 
       <section className="bg-tan pb-24 pt-8 min-[768px]:pb-36" aria-labelledby="work-heading">

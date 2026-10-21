@@ -1521,33 +1521,4 @@ a.career-btn {
   line-height: 1.05;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  .hero-title,
-  .hero-sub,
-  .scroll-fade,
-  html .scroll-fade.is-in,
-  html:not(.hero-ready) .hero-title,
-  html:not(.hero-ready) .hero-sub,
-  html:not(.hero-ready) .scroll-fade,
-  html.hero-ready .hero-title,
-  html.hero-ready .hero-sub,
-  .tab-panel,
-  .hero-popup,
-  .hero-popup-close {
-    opacity: 1;
-    transform: none;
-    animation: none;
-  }
-
-  .marquee-track,
-  .marquee-track-slow,
-  .value-marquee,
-  .trust-marquee-track {
-    animation: none;
-  }
-}
 
