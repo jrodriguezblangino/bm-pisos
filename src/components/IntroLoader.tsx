@@ -97,6 +97,11 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
       onDone();
     };
 
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      complete();
+      return () => undefined;
+    }
+
     let cancelled = false;
     let timer = 0;
     let watchdog = 0;
@@ -207,7 +212,7 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
       ref={shellRef}
       className="loader-shell z-[200] flex w-full items-center justify-center overflow-hidden bg-blue"
       role="status"
-      aria-label="Loading BM PISOS."
+      aria-label="Abriendo BM Pisos."
     >
       <div ref={wordRef} className="loader-word is-shown">
         <span className="loader-line loader-outline">

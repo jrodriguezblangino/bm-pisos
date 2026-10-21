@@ -64,8 +64,7 @@ export function Footer() {
                 href={social.href}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={social.label === "WhatsApp" ? "WhatsApp, reemplazar WHATSAPP_PLACEHOLDER por el número real" : social.label}
-                title={social.label === "WhatsApp" ? "Placeholder: reemplazar por el número de la empresa" : social.label}
+                aria-label={social.label}
               >
                 {social.label === "WhatsApp" ? (
                   <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">

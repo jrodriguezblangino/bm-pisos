@@ -21,25 +21,21 @@ export const brand = {
       map: "https://maps.google.com/?q=Villa+Carlos+Paz+Cordoba+Argentina",
     },
   ],
-  socials: [
-    { label: "Instagram", href: "https://www.instagram.com/bmpisosalisados/" },
-    { label: "WhatsApp", href: "https://wa.me/WHATSAPP_PLACEHOLDER" },
-  ],
+  // WhatsApp se suma acá cuando haya un número real. No dejar wa.me con un placeholder.
+  socials: [{ label: "Instagram", href: "https://www.instagram.com/bmpisosalisados/" }],
   credit: { label: "", href: "" },
 };
 
 export const logos = {
-  mark: publicUrl("logo.jpg"),
+  mark: publicUrl("logo-mark.png"),
 };
 
 export const assets = {
   hero: photo("hero-work.webp"),
   heroVideo: photo("hero-preview.mp4"),
-  floor: photo("pour.jpg"),
   pour: photo("pour.jpg"),
-  hall: photo("hero.jpg"),
-  station: photo("pour.jpg"),
-  yard: photo("hero.jpg"),
+  depot: photo("hall.jpg"),
+  nave: photo("hero.jpg"),
 };
 
 export const nav = [
@@ -56,7 +52,6 @@ export const footerColumns = [
     links: [
       { label: "El oficio", href: "/about" },
       { label: "Cómo trabajamos", href: "/about#our-values" },
-      { label: "Tercera generación", href: "/about" },
       { label: "Zona de trabajo", href: "/cobertura" },
     ],
   },
@@ -97,8 +92,8 @@ export const services: Service[] = [
     title: "Pisos industriales",
     summary:
       "Hormigón alisado para plantas, playas de maniobra y pisos que tienen que quedar parejos bajo uso intenso.",
-    image: assets.floor,
-    imageAlt: imageCredit,
+    image: "",
+    imageAlt: "",
   },
   {
     slug: "comercial",
@@ -106,8 +101,8 @@ export const services: Service[] = [
     title: "Pisos comerciales",
     summary:
       "Superficies de hormigón para locales, hoteles y espacios donde el piso se ve y además tiene que durar.",
-    image: assets.hall,
-    imageAlt: imageCredit,
+    image: "",
+    imageAlt: "",
   },
   {
     slug: "estaciones",
@@ -115,8 +110,8 @@ export const services: Service[] = [
     title: "Estaciones de servicio",
     summary:
       "Pisos para playas de carga y zonas de alto tránsito, donde la nivelación y el alisado no pueden quedar a medias.",
-    image: assets.station,
-    imageAlt: imageCredit,
+    image: "",
+    imageAlt: "",
   },
   {
     slug: "depositos",
@@ -124,7 +119,7 @@ export const services: Service[] = [
     title: "Depósitos y naves",
     summary:
       "Grandes superficies para logística e industria: continuidad, juntas y un piso listo para el trabajo de todos los días.",
-    image: photo("hall.jpg"),
+    image: assets.depot,
     imageAlt: imageCredit,
   },
 ];
@@ -204,8 +199,8 @@ export type Project = {
   slug: string;
   title: string;
   location: string;
-  client: string;
   category: string;
+  service: string;
   tags: string[];
   summary: string;
   image: string;
@@ -217,69 +212,62 @@ export const projects: Project[] = [
     slug: "estaciones-de-servicio",
     title: "Estaciones de servicio",
     location: "Córdoba y la región",
-    client: "Tipo de obra",
     category: "Comercial",
+    service: "estaciones",
     tags: ["Alto tránsito", "Hormigón"],
     summary:
       "Playas y zonas de carga donde el piso recibe vehículos todo el día. Es un tipo de trabajo habitual de BMP, no una obra con cliente publicado.",
-    image: assets.station,
-    imageAlt: imageCredit,
+    image: "",
+    imageAlt: "",
   },
   {
     slug: "depositos",
     title: "Depósitos",
     location: "Córdoba y la región",
-    client: "Tipo de obra",
     category: "Logística",
+    service: "depositos",
     tags: ["Grandes superficies"],
     summary:
       "Pisos continuos para depósito y movimiento de mercadería. La foto es de referencia hasta contar con imágenes de obra de BMP.",
-    image: photo("hall.jpg"),
+    image: assets.depot,
     imageAlt: imageCredit,
   },
   {
     slug: "naves-industriales",
     title: "Naves industriales",
     location: "Córdoba y la región",
-    client: "Tipo de obra",
     category: "Industrial",
+    service: "industrial",
     tags: ["Hormigón alisado"],
     summary:
       "Pisos de hormigón para plantas y naves, pensados para el uso de máquinas y el tránsito interno.",
-    image: assets.floor,
+    image: assets.pour,
     imageAlt: imageCredit,
   },
   {
     slug: "hoteleria",
     title: "Hotelería",
     location: "Córdoba y la región",
-    client: "Tipo de obra",
     category: "Comercial",
+    service: "comercial",
     tags: ["Terminación"],
     summary:
       "Superficies de hormigón en espacios comerciales y hoteleros, donde la terminación también se ve.",
-    image: assets.hall,
-    imageAlt: imageCredit,
+    image: "",
+    imageAlt: "",
   },
   {
     slug: "comercio",
     title: "Espacios comerciales",
     location: "Córdoba y la región",
-    client: "Tipo de obra",
     category: "Comercial",
+    service: "comercial",
     tags: ["Piso visto"],
     summary:
       "Locales y áreas comerciales que necesitan un piso alisado, parejo y preparado para el uso diario.",
-    image: assets.yard,
-    imageAlt: imageCredit,
+    image: "",
+    imageAlt: "",
   },
-];
-
-export const stats = [
-  { value: 375, suffix: "+", label: "Proyectos completados" },
-  { value: 30, suffix: "", label: "Años en el oficio" },
-  { value: 5, suffix: "m+", label: "m³ de tierra movida" },
-  { value: 80, suffix: "%", label: "Clientes que vuelven" },
 ];
 
 export const team: { name: string; role: string; image: string }[] = [];

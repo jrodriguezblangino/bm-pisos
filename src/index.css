@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Geom Graphic, Arial Nova y Azeret Mono siguen en el CDN del sitio de referencia.
+   No se copian a este repo: no hay licencia confirmada para redistribuirlas.
+   Si ese proyecto se apaga, la tipografía cae a Arial. */
+
 @font-face {
   font-family: "Geom Graphic";
   src: url("https://cdn.prod.website-files.com/69cd93c94e190d89bd24bee7/6a153525e8b0de8ffd3b1a64_Geom_Graphic_SemiBold.woff")
@@ -48,12 +52,6 @@
   --color-grey: #6d675f;
   --color-stroke: #d5cfc6;
   --color-line: #1c19161f;
-}
-
-@media (min-width: 991px) and (max-width: 1440px) {
-  html {
-    font-size: calc(100vw / 90);
-  }
 }
 
 html {
@@ -1482,6 +1480,74 @@ a.career-btn {
   .project-row img {
     grid-row: auto;
     height: 7.25rem;
+  }
+
+  .project-row.is-type {
+    grid-template-columns: minmax(0, 1fr) 16.875rem;
+  }
+}
+
+@media (max-width: 991px) {
+  .project-row.is-type {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.type-panel {
+  display: flex;
+  height: 100%;
+  min-height: 12rem;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.25rem;
+  background: var(--color-ink);
+  color: var(--color-tan);
+  padding: 1.5rem;
+}
+
+.type-panel p {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.type-panel .type-panel-title {
+  max-width: 8em;
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.05;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .hero-title,
+  .hero-sub,
+  .scroll-fade,
+  html .scroll-fade.is-in,
+  html:not(.hero-ready) .hero-title,
+  html:not(.hero-ready) .hero-sub,
+  html:not(.hero-ready) .scroll-fade,
+  html.hero-ready .hero-title,
+  html.hero-ready .hero-sub,
+  .tab-panel,
+  .hero-popup,
+  .hero-popup-close {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  .marquee-track,
+  .marquee-track-slow,
+  .value-marquee,
+  .trust-marquee-track {
+    animation: none;
   }
 }
 
