@@ -3,7 +3,7 @@ export const publicUrl = (path: string) => `${import.meta.env.BASE_URL}${path.re
 const photo = (file: string) => publicUrl(`media/${file}`);
 
 export const imageCredit =
-  "Imagen de referencia. No es una obra documentada de BMP y se reemplaza con fotos de proyecto.";
+  "Imagen de referencia provisional. No documenta una obra de BMP.";
 
 export const brand = {
   name: "BMP Pisos Alisados",
@@ -31,18 +31,22 @@ export const logos = {
 };
 
 export const assets = {
-  hero: photo("hero-work.webp"),
+  hero: photo("hero.webp"),
   heroVideo: photo("hero-preview.mp4"),
-  pour: photo("pour.jpg"),
-  depot: photo("hall.jpg"),
-  nave: photo("hero.jpg"),
+  pour: photo("pour.webp"),
+  depot: photo("depot.webp"),
+  industrial: photo("industrial.webp"),
+  station: photo("station.webp"),
+  retail: photo("retail.webp"),
+  hotel: photo("hotel.webp"),
+  oficio: photo("oficio.webp"),
+  surface: photo("surface.webp"),
 };
 
 export const nav = [
-  { label: "Oficio", href: "/about" },
+  { label: "Nosotros", href: "/about" },
   { label: "Servicios", href: "/services" },
   { label: "Obras", href: "/projects" },
-  { label: "Contacto", href: "/contact" },
 ];
 
 export const footerColumns = [
@@ -50,7 +54,7 @@ export const footerColumns = [
     index: "01",
     title: "Empresa",
     links: [
-      { label: "El oficio", href: "/about" },
+      { label: "Nosotros", href: "/about" },
       { label: "Cómo trabajamos", href: "/about#our-values" },
       { label: "Zona de trabajo", href: "/cobertura" },
     ],
@@ -92,8 +96,8 @@ export const services: Service[] = [
     title: "Pisos industriales",
     summary:
       "Hormigón alisado para plantas, playas de maniobra y pisos que tienen que quedar parejos bajo uso intenso.",
-    image: "",
-    imageAlt: "",
+    image: assets.industrial,
+    imageAlt: imageCredit,
   },
   {
     slug: "comercial",
@@ -101,8 +105,8 @@ export const services: Service[] = [
     title: "Pisos comerciales",
     summary:
       "Superficies de hormigón para locales, hoteles y espacios donde el piso se ve y además tiene que durar.",
-    image: "",
-    imageAlt: "",
+    image: assets.retail,
+    imageAlt: imageCredit,
   },
   {
     slug: "estaciones",
@@ -110,8 +114,8 @@ export const services: Service[] = [
     title: "Estaciones de servicio",
     summary:
       "Pisos para playas de carga y zonas de alto tránsito, donde la nivelación y el alisado no pueden quedar a medias.",
-    image: "",
-    imageAlt: "",
+    image: assets.station,
+    imageAlt: imageCredit,
   },
   {
     slug: "depositos",
@@ -217,8 +221,8 @@ export const projects: Project[] = [
     tags: ["Alto tránsito", "Hormigón"],
     summary:
       "Playas y zonas de carga donde el piso recibe vehículos todo el día. Es un tipo de trabajo habitual de BMP, no una obra con cliente publicado.",
-    image: "",
-    imageAlt: "",
+    image: assets.station,
+    imageAlt: imageCredit,
   },
   {
     slug: "depositos",
@@ -241,7 +245,7 @@ export const projects: Project[] = [
     tags: ["Hormigón alisado"],
     summary:
       "Pisos de hormigón para plantas y naves, pensados para el uso de máquinas y el tránsito interno.",
-    image: assets.pour,
+    image: assets.industrial,
     imageAlt: imageCredit,
   },
   {
@@ -253,8 +257,8 @@ export const projects: Project[] = [
     tags: ["Terminación"],
     summary:
       "Superficies de hormigón en espacios comerciales y hoteleros, donde la terminación también se ve.",
-    image: "",
-    imageAlt: "",
+    image: assets.hotel,
+    imageAlt: imageCredit,
   },
   {
     slug: "comercio",
@@ -265,8 +269,8 @@ export const projects: Project[] = [
     tags: ["Piso visto"],
     summary:
       "Locales y áreas comerciales que necesitan un piso alisado, parejo y preparado para el uso diario.",
-    image: "",
-    imageAlt: "",
+    image: assets.retail,
+    imageAlt: imageCredit,
   },
 ];
 

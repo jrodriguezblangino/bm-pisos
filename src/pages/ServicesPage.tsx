@@ -157,7 +157,7 @@ export function ServicesPage() {
         title="Empezá con"
         stroke="BM Pisos."
         body="Pisos de hormigón alisado para industria, comercio y depósitos, desde Villa Carlos Paz."
-        image={assets.hero}
+        image={assets.surface}
       />
 
     </div>
@@ -179,7 +179,7 @@ export function ContactPage() {
   return (
     <div className="bg-tan">
       <section className="page-hero" data-page-hero aria-labelledby="contact-heading">
-        <img src={assets.hero} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <img src={assets.surface} alt="" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative mx-auto w-full max-w-[1360px] px-4 pb-36 pt-28 md:px-6 lg:px-0 lg:pt-[6.5rem]">
           <h1 id="contact-heading" className="page-display mx-auto max-w-[16em] text-center">

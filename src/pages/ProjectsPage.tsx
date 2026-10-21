@@ -13,14 +13,14 @@ export function ProjectsPage() {
   return (
     <div className="bg-tan">
       <section className="page-hero" data-page-hero aria-labelledby="projects-heading">
-        <img src={assets.hero} alt="" className="absolute inset-0 h-full w-full object-cover grayscale contrast-110" />
+        <img src={assets.surface} alt="" className="absolute inset-0 h-full w-full object-cover grayscale contrast-110" />
         <div className="absolute inset-0 bg-black/45" />
         <div className="relative mx-auto flex h-svh w-full max-w-[1360px] flex-col justify-center px-4 md:px-6 lg:px-0">
           <h1 id="projects-heading" className="page-display max-w-[10em]">
             El tipo de piso.
           </h1>
           <p className="page-kicker mt-6 max-w-[34rem]">
-            Los usos que hace BMP en la región. No es un portafolio de clientes: la foto aparece solo cuando corresponde a ese piso, y es de referencia hasta tener obra documentada.
+            Los usos que hace BMP en la región. No es un portafolio de clientes: las fotos son de referencia y no documentan una obra de BMP.
           </p>
           <div className="mt-8">
             <Button href="/projects#obras">Todos los tipos</Button>

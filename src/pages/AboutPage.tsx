@@ -8,7 +8,7 @@ export function AboutPage() {
   return (
     <div className="bg-tan">
       <section className="page-hero" data-page-hero aria-labelledby="legacy-heading">
-        <img src={assets.hero} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <img src={assets.oficio} alt="" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative mx-auto flex h-svh w-full max-w-[1360px] flex-col items-center justify-center px-4 text-center md:px-6 lg:px-0">
           <h1 id="legacy-heading" className="page-display max-w-[14em]">
@@ -21,7 +21,7 @@ export function AboutPage() {
       <section className="bg-tan" aria-labelledby="story-heading">
         <div className="mx-auto grid w-full max-w-[1360px] items-center gap-10 px-4 py-28 md:px-6 lg:grid-cols-2 lg:px-0">
           <figure className="scroll-fade">
-            <img src={assets.nave} alt={imageCredit} className="h-[28rem] w-full object-cover" />
+            <img src={assets.pour} alt={imageCredit} className="h-[28rem] w-full object-cover" />
             <figcaption className="mt-3 text-sm leading-6 text-grey">{imageCredit}</figcaption>
           </figure>
           <div className="scroll-fade space-y-6 text-xl leading-[1.5]">
@@ -60,7 +60,7 @@ export function AboutPage() {
         title="Empezá con"
         stroke="BM Pisos."
         body="Pisos de hormigón alisado para industria, comercio y depósitos, desde Villa Carlos Paz."
-        image={assets.pour}
+        image={assets.surface}
       />
     </div>
   );

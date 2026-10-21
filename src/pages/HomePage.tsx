@@ -433,8 +433,8 @@ export function HomePage() {
       <section ref={heroRef} className="home-hero relative h-[150svh] bg-tan" aria-labelledby="hero-heading">
         <div ref={stickyRef} className="sticky top-0 h-svh overflow-hidden bg-tan">
           <div className="hero-stage">
-            <img src={assets.hero} alt="" className="hero-photo hero-photo-bw" width={1600} height={1066} />
-            <img ref={colorRef} src={assets.hero} alt="" className="hero-photo" width={1600} height={1066} />
+            <img src={assets.hero} alt="" className="hero-photo hero-photo-bw" width={1280} height={720} />
+            <img ref={colorRef} src={assets.hero} alt="" className="hero-photo" width={1280} height={720} />
             <div ref={shadeRef} className="hero-shade" />
           </div>
           <div ref={copyRef} className="absolute inset-0 z-10">
@@ -540,7 +540,7 @@ export function HomePage() {
             Tipos de obra
           </h2>
           <p className="scroll-fade mt-6 max-w-[40rem] text-[1.25rem] leading-[1.5]">
-            Cinco usos habituales. La foto entra cuando es de una obra de BMP y corresponde a ese piso.
+            Cinco usos habituales. Las fotos son de referencia hasta contar con obra documentada de BMP.
           </p>
           <ul className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {projects.map((project, index) => (
@@ -614,7 +614,7 @@ export function HomePage() {
 
       <section className="relative overflow-hidden text-tan" aria-labelledby="start-heading">
         <div className="absolute inset-0">
-          <img src={assets.hero} alt="" className="h-full w-full object-cover" />
+          <img src={assets.surface} alt="" className="h-full w-full object-cover" />
           <div className="absolute inset-0 bg-[rgb(29_29_29/0.6)]" />
         </div>
         <div className="cta-fade" aria-hidden="true">
