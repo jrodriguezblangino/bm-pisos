@@ -1,8 +1,8 @@
 import { FormEvent, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button, SlideLabel } from "../components/Button";
 import { ClosingBand } from "../components/ClosingBand";
-import { additionalServices, assets, brand, imageCredit, services } from "../content/site";
+import { additionalServices, assets, brand, imageCredit, projects, services, values } from "../content/site";
 
 const serviceTabs = [
   ...services,
@@ -11,8 +11,8 @@ const serviceTabs = [
     index: "05",
     title: "También entra en el oficio",
     summary: "Trabajos que acompañan el piso cuando la obra los pide, siempre confirmados caso por caso.",
-    image: "",
-    imageAlt: "",
+    image: assets.yard,
+    imageAlt: imageCredit,
   },
 ];
 
@@ -42,7 +42,7 @@ export function ServicesPage() {
   return (
     <div className="bg-tan">
       <section className="page-hero" data-page-hero aria-labelledby="services-heading">
-            <img src={assets.pour} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <img src={assets.pour} alt="" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-black/45" />
         <div className="relative mx-auto flex h-svh w-full max-w-[1360px] flex-col justify-end px-4 pb-24 md:px-6 lg:px-0 lg:pb-40">
           <h1 id="services-heading" className="page-display max-w-[11em]">
@@ -101,17 +101,7 @@ export function ServicesPage() {
                 <SlideLabel>Consultar</SlideLabel>
               </Button>
             </div>
-            {active.image ? (
-              <figure className="order-first min-[992px]:order-none">
-                <img src={active.image} alt={active.imageAlt} className="h-[16.5rem] w-full object-cover min-[768px]:h-[22rem] min-[992px]:h-[37.5rem]" />
-                <figcaption className="mt-3 text-sm leading-6 text-grey">{imageCredit}</figcaption>
-              </figure>
-            ) : (
-              <div className="type-panel order-first min-h-64 rounded-lg min-[768px]:min-h-[22rem] min-[992px]:order-none min-[992px]:min-h-[37.5rem]">
-                <p>[ {active.index} / 05 ]</p>
-                <p className="type-panel-title" aria-hidden="true">{active.title}</p>
-              </div>
-            )}
+            <img src={active.image} alt={active.imageAlt} className="order-first h-[16.5rem] w-full object-cover min-[768px]:h-[22rem] min-[992px]:order-none min-[992px]:h-[37.5rem]" />
           </article>
         </div>
       </section>
@@ -130,12 +120,6 @@ export function ServicesPage() {
               </article>
             ))}
           </div>
-          <div className="mt-16 flex flex-col items-start gap-8">
-            <p className="max-w-3xl text-base leading-6 text-grey">
-              Las fotos son de referencia. Los nombres de clientes y las obras terminadas se publican cuando BMP los confirme.
-            </p>
-            <Button href="/projects">Ver tipos de obra</Button>
-          </div>
         </div>
       </section>
 
@@ -152,14 +136,60 @@ export function ServicesPage() {
         </h2>
       </section>
 
+      <section className="trust-section overflow-hidden bg-dark-tan text-ink" aria-labelledby="criteria-heading">
+        <p className="scroll-fade text-center font-heading text-base font-semibold uppercase">Cómo se trabaja</p>
+        <h2 id="criteria-heading" className="trust-heading scroll-fade mx-auto mt-8 font-heading">
+          El piso se banca
+          <br /> con oficio.
+        </h2>
+        <div className="trust-gap scroll-fade w-full">
+          <div className="trust-marquee">
+            {[0, 1].map((copy) => (
+              <ul key={copy} className="trust-marquee-track list-none" aria-hidden={copy > 0 || undefined}>
+                {values.map((item) => (
+                  <li key={`${item.title}-${copy}`} className="trust-card bg-tan">
+                    <p className="trust-quote">{item.body}</p>
+                    <h3 className="trust-name font-heading">{item.title}</h3>
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-tan py-24" aria-labelledby="service-work-heading">
+        <div className="mx-auto w-full max-w-[1360px] px-4 md:px-6 lg:px-0">
+          <div className="flex flex-col items-start justify-between gap-6 min-[992px]:flex-row min-[992px]:items-end">
+            <h2 id="service-work-heading" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] min-[992px]:text-[4rem]">
+              Tipos de obra
+            </h2>
+            <Link to="/projects" className="group inline-flex items-center rounded-[4px] bg-blue px-6 py-4 font-heading text-base font-semibold uppercase text-tan">
+              <SlideLabel>Ver todos</SlideLabel>
+            </Link>
+          </div>
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {projects.slice(0, 3).map((project) => (
+              <Link key={project.slug} to={`/project/${project.slug}`} className="group block">
+                <img src={project.image} alt={project.imageAlt} className="aspect-[16/10] w-full object-cover transition-transform duration-700 group-hover:scale-[1.02]" />
+                <p className="mt-4 text-sm">{project.location}</p>
+                <h3 className="mt-2 font-heading text-2xl font-semibold uppercase leading-[1.2] group-hover:text-blue">{project.title}</h3>
+              </Link>
+            ))}
+          </div>
+          <p className="mt-10 max-w-3xl text-base text-grey">
+            Las fotos de esta sección son de referencia. Los nombres de clientes y las obras terminadas se publican cuando BMP los confirme.
+          </p>
+        </div>
+      </section>
+
       <ClosingBand
         id="services-close-heading"
         title="Empezá con"
         stroke="BM Pisos."
         body="Pisos de hormigón alisado para industria, comercio y depósitos, desde Villa Carlos Paz."
-        image={assets.surface}
+        image={assets.floor}
       />
-
     </div>
   );
 }
@@ -179,7 +209,7 @@ export function ContactPage() {
   return (
     <div className="bg-tan">
       <section className="page-hero" data-page-hero aria-labelledby="contact-heading">
-        <img src={assets.surface} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <img src={assets.hero} alt="" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative mx-auto w-full max-w-[1360px] px-4 pb-36 pt-28 md:px-6 lg:px-0 lg:pt-[6.5rem]">
           <h1 id="contact-heading" className="page-display mx-auto max-w-[16em] text-center">
@@ -195,8 +225,8 @@ export function ContactPage() {
               </div>
             ) : (
               <>
-                <p className="mx-auto max-w-[34rem] text-center text-xl leading-[1.5]">
-                  Tomamos consultas por pisos de hormigón en Córdoba, Santa Fe y provincias vecinas. El mensaje queda en esta pantalla: el sitio todavía no lo envía.
+                <p className="mx-auto max-w-[27rem] text-center text-xl leading-[1.5]">
+                  Tomamos consultas por pisos de hormigón en Córdoba, Santa Fe y provincias vecinas.
                 </p>
                 <form className="mt-10" onSubmit={onSubmit}>
                   <div className="grid gap-x-6 gap-y-6 md:grid-cols-2">
@@ -215,9 +245,7 @@ export function ContactPage() {
                         Elegí una
                       </option>
                       <option>Pedir una visita</option>
-                      <option>Piso industrial</option>
-                      <option>Estación de servicio</option>
-                      <option>Depósito o nave</option>
+                      <option>Trabajar en BMP</option>
                       <option>Otra consulta</option>
                     </select>
                   </label>
@@ -226,7 +254,7 @@ export function ContactPage() {
                     <textarea name="message" required rows={4} placeholder="Contanos la obra" className="contact-field contact-area" />
                   </label>
                   <Button type="submit" className="group mt-8">
-                    <SlideLabel>Anotar consulta</SlideLabel>
+                    <SlideLabel>Enviar</SlideLabel>
                   </Button>
                 </form>
               </>

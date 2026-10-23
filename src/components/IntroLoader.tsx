@@ -97,8 +97,6 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
       onDone();
     };
 
-    // Safari en iOS responde «reduce» a prefers-reduced-motion aunque el usuario
-    // no haya pedido quitar el splash. Cortar el intro ahí deja la página quieta.
     let cancelled = false;
     let timer = 0;
     let watchdog = 0;
@@ -209,7 +207,7 @@ export function IntroLoader({ onDone }: { onDone: () => void }) {
       ref={shellRef}
       className="loader-shell z-[200] flex w-full items-center justify-center overflow-hidden bg-blue"
       role="status"
-      aria-label="Abriendo BM Pisos."
+      aria-label="Loading BM PISOS."
     >
       <div ref={wordRef} className="loader-word is-shown">
         <span className="loader-line loader-outline">

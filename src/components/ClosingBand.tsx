@@ -6,15 +6,15 @@ type ClosingBandProps = {
   title: string;
   stroke: string;
   body: string;
-  image?: string;
+  image: string;
 };
 
 export function ClosingBand({ id, title, stroke, body, image }: ClosingBandProps) {
   return (
-    <section className="relative overflow-hidden bg-ink text-tan" aria-labelledby={id}>
+    <section className="relative overflow-hidden text-tan" aria-labelledby={id}>
       <div className="absolute inset-0">
-        {image ? <img src={image} alt="" className="h-full w-full object-cover" /> : null}
-        <div className={`absolute inset-0 ${image ? "bg-[rgb(29_29_29/0.6)]" : "bg-ink"}`} />
+        <img src={image} alt="" className="h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-[rgb(29_29_29/0.6)]" />
       </div>
       <div className="cta-fade" aria-hidden="true">
         <div className="cta-fade-soft" />
@@ -28,6 +28,9 @@ export function ClosingBand({ id, title, stroke, body, image }: ClosingBandProps
         <div className="cta-actions mt-8">
           <Link to="/contact" className="cta-btn cta-btn-primary group">
             <SlideLabel>Pedir una visita</SlideLabel>
+          </Link>
+          <Link to="/careers" className="cta-btn cta-btn-dark group">
+            <SlideLabel>Sumate a BMP</SlideLabel>
           </Link>
         </div>
       </div>

@@ -3,7 +3,7 @@ export const publicUrl = (path: string) => `${import.meta.env.BASE_URL}${path.re
 const photo = (file: string) => publicUrl(`media/${file}`);
 
 export const imageCredit =
-  "Imagen de referencia provisional. No documenta una obra de BMP.";
+  "Imagen de referencia. No es una obra documentada de BMP y se reemplaza con fotos de proyecto.";
 
 export const brand = {
   name: "BMP Pisos Alisados",
@@ -21,32 +21,32 @@ export const brand = {
       map: "https://maps.google.com/?q=Villa+Carlos+Paz+Cordoba+Argentina",
     },
   ],
-  // WhatsApp se suma acá cuando haya un número real. No dejar wa.me con un placeholder.
-  socials: [{ label: "Instagram", href: "https://www.instagram.com/bmpisosalisados/" }],
+  socials: [
+    { label: "Instagram", href: "https://www.instagram.com/bmpisosalisados/" },
+    { label: "WhatsApp", href: "https://wa.me/WHATSAPP_PLACEHOLDER" },
+  ],
   credit: { label: "", href: "" },
 };
 
 export const logos = {
-  mark: publicUrl("logo-mark.png"),
+  mark: publicUrl("logo.jpg"),
 };
 
 export const assets = {
-  hero: photo("hero.webp"),
+  hero: photo("hero-work.webp"),
   heroVideo: photo("hero-preview.mp4"),
-  pour: photo("pour.webp"),
-  depot: photo("depot.webp"),
-  industrial: photo("industrial.webp"),
-  station: photo("station.webp"),
-  retail: photo("retail.webp"),
-  hotel: photo("hotel.webp"),
-  oficio: photo("oficio.webp"),
-  surface: photo("surface.webp"),
+  floor: photo("pour.jpg"),
+  pour: photo("pour.jpg"),
+  hall: photo("hero.jpg"),
+  station: photo("pour.jpg"),
+  yard: photo("hero.jpg"),
 };
 
 export const nav = [
-  { label: "Nosotros", href: "/about" },
+  { label: "Oficio", href: "/about" },
   { label: "Servicios", href: "/services" },
   { label: "Obras", href: "/projects" },
+  { label: "Contacto", href: "/contact" },
 ];
 
 export const footerColumns = [
@@ -54,8 +54,9 @@ export const footerColumns = [
     index: "01",
     title: "Empresa",
     links: [
-      { label: "Nosotros", href: "/about" },
+      { label: "El oficio", href: "/about" },
       { label: "Cómo trabajamos", href: "/about#our-values" },
+      { label: "Tercera generación", href: "/about" },
       { label: "Zona de trabajo", href: "/cobertura" },
     ],
   },
@@ -96,7 +97,7 @@ export const services: Service[] = [
     title: "Pisos industriales",
     summary:
       "Hormigón alisado para plantas, playas de maniobra y pisos que tienen que quedar parejos bajo uso intenso.",
-    image: assets.industrial,
+    image: assets.floor,
     imageAlt: imageCredit,
   },
   {
@@ -105,7 +106,7 @@ export const services: Service[] = [
     title: "Pisos comerciales",
     summary:
       "Superficies de hormigón para locales, hoteles y espacios donde el piso se ve y además tiene que durar.",
-    image: assets.retail,
+    image: assets.hall,
     imageAlt: imageCredit,
   },
   {
@@ -123,7 +124,7 @@ export const services: Service[] = [
     title: "Depósitos y naves",
     summary:
       "Grandes superficies para logística e industria: continuidad, juntas y un piso listo para el trabajo de todos los días.",
-    image: assets.depot,
+    image: photo("hall.jpg"),
     imageAlt: imageCredit,
   },
 ];
@@ -203,8 +204,8 @@ export type Project = {
   slug: string;
   title: string;
   location: string;
+  client: string;
   category: string;
-  service: string;
   tags: string[];
   summary: string;
   image: string;
@@ -216,8 +217,8 @@ export const projects: Project[] = [
     slug: "estaciones-de-servicio",
     title: "Estaciones de servicio",
     location: "Córdoba y la región",
+    client: "Tipo de obra",
     category: "Comercial",
-    service: "estaciones",
     tags: ["Alto tránsito", "Hormigón"],
     summary:
       "Playas y zonas de carga donde el piso recibe vehículos todo el día. Es un tipo de trabajo habitual de BMP, no una obra con cliente publicado.",
@@ -228,50 +229,57 @@ export const projects: Project[] = [
     slug: "depositos",
     title: "Depósitos",
     location: "Córdoba y la región",
+    client: "Tipo de obra",
     category: "Logística",
-    service: "depositos",
     tags: ["Grandes superficies"],
     summary:
       "Pisos continuos para depósito y movimiento de mercadería. La foto es de referencia hasta contar con imágenes de obra de BMP.",
-    image: assets.depot,
+    image: photo("hall.jpg"),
     imageAlt: imageCredit,
   },
   {
     slug: "naves-industriales",
     title: "Naves industriales",
     location: "Córdoba y la región",
+    client: "Tipo de obra",
     category: "Industrial",
-    service: "industrial",
     tags: ["Hormigón alisado"],
     summary:
       "Pisos de hormigón para plantas y naves, pensados para el uso de máquinas y el tránsito interno.",
-    image: assets.industrial,
+    image: assets.floor,
     imageAlt: imageCredit,
   },
   {
     slug: "hoteleria",
     title: "Hotelería",
     location: "Córdoba y la región",
+    client: "Tipo de obra",
     category: "Comercial",
-    service: "comercial",
     tags: ["Terminación"],
     summary:
       "Superficies de hormigón en espacios comerciales y hoteleros, donde la terminación también se ve.",
-    image: assets.hotel,
+    image: assets.hall,
     imageAlt: imageCredit,
   },
   {
     slug: "comercio",
     title: "Espacios comerciales",
     location: "Córdoba y la región",
+    client: "Tipo de obra",
     category: "Comercial",
-    service: "comercial",
     tags: ["Piso visto"],
     summary:
       "Locales y áreas comerciales que necesitan un piso alisado, parejo y preparado para el uso diario.",
-    image: assets.retail,
+    image: assets.yard,
     imageAlt: imageCredit,
   },
+];
+
+export const stats = [
+  { value: 375, suffix: "+", label: "Proyectos completados" },
+  { value: 30, suffix: "", label: "Años en el oficio" },
+  { value: 5, suffix: "m+", label: "m³ de tierra movida" },
+  { value: 80, suffix: "%", label: "Clientes que vuelven" },
 ];
 
 export const team: { name: string; role: string; image: string }[] = [];

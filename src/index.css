@@ -1,9 +1,5 @@
 @import "tailwindcss";
 
-/* Geom Graphic, Arial Nova y Azeret Mono siguen en el CDN del sitio de referencia.
-   No se copian a este repo: no hay licencia confirmada para redistribuirlas.
-   Si ese proyecto se apaga, la tipografía cae a Arial. */
-
 @font-face {
   font-family: "Geom Graphic";
   src: url("https://cdn.prod.website-files.com/69cd93c94e190d89bd24bee7/6a153525e8b0de8ffd3b1a64_Geom_Graphic_SemiBold.woff")
@@ -52,6 +48,12 @@
   --color-grey: #6d675f;
   --color-stroke: #d5cfc6;
   --color-line: #1c19161f;
+}
+
+@media (min-width: 991px) and (max-width: 1440px) {
+  html {
+    font-size: calc(100vw / 90);
+  }
 }
 
 html {
@@ -563,20 +565,6 @@ html.hero-ready .hero-title {
   .trust-marquee:hover .trust-marquee-track {
     animation-play-state: paused;
   }
-
-  .trust-marquee.is-brisk:hover .trust-marquee-track {
-    animation-play-state: running;
-  }
-}
-
-.trust-marquee.is-brisk {
-  touch-action: pan-y;
-  cursor: grab;
-  user-select: none;
-}
-
-.trust-marquee.is-brisk.is-dragging {
-  cursor: grabbing;
 }
 
 @keyframes trust-marquee {
@@ -1121,65 +1109,6 @@ a.career-btn {
   line-height: 1;
 }
 
-.career-copy {
-  padding: 5rem 1rem 0;
-}
-
-.career-reel {
-  overflow-x: clip;
-  padding: 0 1rem 5.4375rem;
-}
-
-.career-stage {
-  width: 100%;
-  max-width: 1360px;
-  margin-inline: auto;
-}
-
-.career-hinge {
-  width: min(40rem, 100%);
-  height: 1px;
-  margin: 4.5rem 0 2.75rem;
-  background: #532c1633;
-}
-
-@media (min-width: 768px) {
-  .career-copy {
-    padding-top: 6rem;
-  }
-
-  .career-hinge {
-    margin-top: 5.5rem;
-    margin-bottom: 3.25rem;
-  }
-}
-
-@media (min-width: 992px) {
-  .career-copy,
-  .career-reel {
-    padding-inline: 0;
-  }
-
-  .career-copy {
-    padding-top: 7rem;
-  }
-
-  .career-reel {
-    padding-bottom: 3.1875rem;
-  }
-
-  .career-stage {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  .career-hinge {
-    align-self: flex-start;
-    margin-bottom: 2.5rem;
-  }
-}
-
 .cta-fade {
   pointer-events: none;
   position: absolute;
@@ -1481,44 +1410,5 @@ a.career-btn {
     grid-row: auto;
     height: 7.25rem;
   }
-
-  .project-row.is-type {
-    grid-template-columns: minmax(0, 1fr) 16.875rem;
-  }
 }
-
-@media (max-width: 991px) {
-  .project-row.is-type {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-.type-panel {
-  display: flex;
-  height: 100%;
-  min-height: 12rem;
-  flex-direction: column;
-  justify-content: center;
-  gap: 1.25rem;
-  background: var(--color-ink);
-  color: var(--color-tan);
-  padding: 1.5rem;
-}
-
-.type-panel p {
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-}
-
-.type-panel .type-panel-title {
-  max-width: 8em;
-  font-family: var(--font-heading);
-  font-size: clamp(2rem, 4vw, 3.25rem);
-  font-weight: 600;
-  letter-spacing: 0;
-  line-height: 1.05;
-}
-
 

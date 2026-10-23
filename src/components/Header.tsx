@@ -206,11 +206,11 @@ export function Header() {
     <header className={`site-header fixed inset-x-0 top-0 z-[80] ${solid ? "nav-bar" : ""} ${open ? "nav-menu-open" : ""} ${peek ? "nav-peek" : ""}`}>
       <div className="nav-shell mx-auto flex w-full max-w-[1360px] items-center justify-between px-4 py-3 min-[768px]:px-6 min-[768px]:py-4 min-[992px]:px-0 min-[992px]:py-5">
         <Link to="/" aria-label="BMP Pisos Alisados" className="relative z-[90] flex h-11 shrink-0 items-center min-[768px]:h-14">
-          <img src={logos.mark} alt="" className="h-10 w-auto min-[768px]:h-12" />
+          <img src={logos.mark} alt="" className="h-10 w-auto rounded-md bg-tan min-[768px]:h-12" />
         </Link>
 
         <div className="relative z-[90] ml-auto hidden h-14 w-full max-w-[55.5313em] items-center justify-between lg:flex">
-          <nav className="flex items-center gap-8" aria-label="Principal">
+          <nav className="flex items-center gap-8" aria-label="Primary">
             {nav.map((item) => (
               <NavLink
                 key={item.href}
@@ -223,7 +223,6 @@ export function Header() {
           </nav>
           <Link
             to="/contact"
-            aria-current={pathname === "/contact" ? "page" : undefined}
             className="inline-flex items-center rounded-[4px] bg-orange px-6 py-4 font-heading text-[16px] font-semibold uppercase leading-none text-tan transition-colors hover:bg-[#c2410e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
           >
             <span className="letter-link">
@@ -240,7 +239,7 @@ export function Header() {
           aria-label={open ? "Cerrar menú" : "Abrir menú"}
           onClick={() => setOpen((value) => !value)}
         >
-          <span className="sr-only">Menú</span>
+          <span className="sr-only">Menu</span>
           <span className={`menu-icon ${open ? "is-open" : ""}`} aria-hidden="true">
             <span />
             <span />
@@ -250,18 +249,16 @@ export function Header() {
       </div>
 
       <div id="mobile-menu" inert={!open} className={`mobile-menu lg:hidden ${open ? "is-open" : ""}`}>
-        <nav className="flex flex-col gap-8 px-6 pt-8" aria-label="Móvil">
+        <nav className="flex flex-col gap-8 px-6 pt-8" aria-label="Mobile">
           {nav.map((item) => (
             <Link key={item.href} to={item.href} className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2]" onClick={() => setOpen(false)}>
               {item.label}
             </Link>
           ))}
-          <Link
-            to="/contact"
-            aria-current={pathname === "/contact" ? "page" : undefined}
-            className="mt-2 inline-flex w-fit items-center rounded-[4px] bg-orange px-6 py-4 font-heading text-[16px] font-semibold uppercase leading-none text-tan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-tan"
-            onClick={() => setOpen(false)}
-          >
+          <Link to="/careers" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2]" onClick={() => setOpen(false)}>
+            Trabajo
+          </Link>
+          <Link to="/contact" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2]" onClick={() => setOpen(false)}>
             Consultar
           </Link>
         </nav>
