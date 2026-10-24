@@ -84,9 +84,6 @@ export function AboutPage() {
           <p className="mt-6 max-w-3xl text-xl leading-[1.5]">
             El equipo no se lista con nombres hasta que BMP los confirme. Lo que se puede decir hoy es el oficio: gente que hace pisos de hormigón, con treinta años de práctica familiar en el rubro.
           </p>
-          <Button href="/careers" className="group mt-8">
-            <SlideLabel>Trabajar con BMP</SlideLabel>
-          </Button>
           {team.length > 0 ? (
             <ul className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {team.map((person) => (
@@ -135,9 +132,6 @@ export function AboutPage() {
             <p className="mt-4 max-w-xl text-xl leading-[1.5]">
               No hay búsquedas publicadas. Si trabajás pisos de hormigón y el ritmo encaja, se conversa.
             </p>
-            <Button href="/careers" className="group mt-8">
-              <SlideLabel>Trabajar con BMP</SlideLabel>
-            </Button>
           </article>
           <article id="give-back" className="scroll-mt-24">
             <h3 id="give-heading" className="font-heading text-[2rem] font-semibold uppercase leading-[1.2]">

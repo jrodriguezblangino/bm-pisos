@@ -245,7 +245,6 @@ export function ContactPage() {
                         Elegí una
                       </option>
                       <option>Pedir una visita</option>
-                      <option>Trabajar en BMP</option>
                       <option>Otra consulta</option>
                     </select>
                   </label>

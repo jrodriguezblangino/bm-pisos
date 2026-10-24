@@ -66,94 +66,6 @@ function scopeFrame(index: number, pos: number, compact: boolean) {
   };
 }
 
-const careerClips = [
-  { src: assets.pour },
-  { src: assets.hall },
-  { src: assets.hero },
-];
-
-function PlayMark({ paused = false, hidden = false }: { paused?: boolean; hidden?: boolean }) {
-  return (
-    <svg viewBox="0 0 64 64" aria-hidden="true" className={hidden ? "is-hidden" : ""}>
-      <circle cx="32" cy="32" r="18" fill="currentColor" />
-      {paused ? (
-        <path d="M26 22h5v20h-5zm7 0h5v20h-5z" fill="#f4f1eb" />
-      ) : (
-        <path d="M25.334 44 44 32 25.334 20v24Z" fill="#f4f1eb" />
-      )}
-    </svg>
-  );
-}
-
-function CareerStack() {
-  const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState<number | null>(null);
-  const drag = useRef({ x: 0, dx: 0 });
-  const total = careerClips.length;
-
-  const go = (next: number) => {
-    setIndex((next + total) % total);
-    setPlaying(null);
-  };
-
-  return (
-    <div
-      className="career-stack"
-      onPointerDown={(event) => {
-        if (event.button !== 0) return;
-        drag.current = { x: event.clientX, dx: 0 };
-      }}
-      onPointerMove={(event) => {
-        if (event.buttons !== 1) return;
-        drag.current.dx = event.clientX - drag.current.x;
-      }}
-      onPointerUp={() => {
-        if (drag.current.dx <= -48) go(index + 1);
-        else if (drag.current.dx >= 48) go(index - 1);
-      }}
-    >
-      {careerClips.map((clip, clipIndex) => {
-        const depth = (clipIndex - index + total) % total;
-        const shift = depth === 0 ? "0%" : depth === 1 ? "14.25%" : "27%";
-        const lift = depth === 0 ? "0px" : depth === 1 ? "-100px" : "-200px";
-        const isFront = depth === 0;
-        const isOn = playing === clipIndex;
-        return (
-          <article
-            key={clip.src}
-            className={`career-card${isFront ? " is-front" : " is-back"}${depth === 2 ? " is-far" : ""}`}
-            style={{ transform: `translate3d(${shift}, 0, ${lift})`, zIndex: 3 - depth }}
-            onClick={() => {
-              if (Math.abs(drag.current.dx) > 8 || isFront) return;
-              go(clipIndex);
-            }}
-          >
-            <img src={clip.src} alt={isFront ? imageCredit : ""} draggable={false} />
-            <div className="career-shade" />
-            <p className="career-count">
-              [ {String(clipIndex + 1).padStart(2, "0")}/{String(total).padStart(2, "0")} ]
-            </p>
-            <button
-              type="button"
-              className="career-play"
-              aria-label={isOn ? `Pausar referencia ${clipIndex + 1} de ${total}` : `Reproducir referencia ${clipIndex + 1} de ${total}`}
-              aria-pressed={isOn}
-              onClick={(event) => {
-                event.stopPropagation();
-                if (!isFront) return;
-                setPlaying(isOn ? null : clipIndex);
-              }}
-            >
-              <PlayMark hidden={isOn} />
-              <PlayMark paused hidden={!isOn} />
-            </button>
-          </article>
-        );
-      })}
-    </div>
-  );
-}
-
 function StatValue({ value, suffix }: { value: number; suffix: string }) {
   const ref = useRef<HTMLElement>(null);
   const [shown, setShown] = useState(value);
@@ -849,25 +761,6 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="overflow-x-clip bg-tan px-4 pb-[5.4375rem] pt-20 min-[992px]:px-0 min-[992px]:pb-[3.1875rem] min-[992px]:pt-28" aria-labelledby="career-heading">
-        <div className="mx-auto flex w-full max-w-[1360px] flex-col items-start gap-14 min-[992px]:flex-row min-[992px]:items-center">
-          <div className="scroll-fade w-full max-w-[43.25rem]">
-            <h2 id="career-heading" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] min-[768px]:text-[3.5rem]">
-              El oficio se aprende en la obra.
-            </h2>
-            <p className="mt-6 text-[1.25rem] leading-[1.5]">
-              No hay búsquedas publicadas. Si trabajás pisos de hormigón y querés escribir, el canal está abierto.
-            </p>
-            <Button href="/careers" className="career-btn group mt-8">
-              <SlideLabel>Trabajar con BMP</SlideLabel>
-            </Button>
-          </div>
-          <div className="scroll-fade scroll-fade-late w-full min-[992px]:w-auto">
-            <CareerStack />
-          </div>
-        </div>
-      </section>
-
       <section className="relative overflow-hidden text-tan" aria-labelledby="start-heading">
         <div className="absolute inset-0">
           <img src={assets.floor} alt="" className="h-full w-full object-cover" />
@@ -886,9 +779,6 @@ export function HomePage() {
           <div className="cta-actions">
             <Link to="/contact" className="cta-btn cta-btn-primary group">
               <SlideLabel>Pedir una visita</SlideLabel>
-            </Link>
-            <Link to="/careers" className="cta-btn cta-btn-dark group">
-              <SlideLabel>Sumate a BMP</SlideLabel>
             </Link>
           </div>
           </div>

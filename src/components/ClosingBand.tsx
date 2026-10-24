@@ -29,9 +29,6 @@ export function ClosingBand({ id, title, stroke, body, image }: ClosingBandProps
           <Link to="/contact" className="cta-btn cta-btn-primary group">
             <SlideLabel>Pedir una visita</SlideLabel>
           </Link>
-          <Link to="/careers" className="cta-btn cta-btn-dark group">
-            <SlideLabel>Sumate a BMP</SlideLabel>
-          </Link>
         </div>
       </div>
     </section>

@@ -206,7 +206,7 @@ export function Header() {
     <header className={`site-header fixed inset-x-0 top-0 z-[80] ${solid ? "nav-bar" : ""} ${open ? "nav-menu-open" : ""} ${peek ? "nav-peek" : ""}`}>
       <div className="nav-shell mx-auto flex w-full max-w-[1360px] items-center justify-between px-4 py-3 min-[768px]:px-6 min-[768px]:py-4 min-[992px]:px-0 min-[992px]:py-5">
         <Link to="/" aria-label="BMP Pisos Alisados" className="relative z-[90] flex h-11 shrink-0 items-center min-[768px]:h-14">
-          <img src={logos.mark} alt="" className="h-10 w-auto rounded-md bg-tan min-[768px]:h-12" />
+          <img src={logos.mark} alt="" className="h-10 w-auto min-[768px]:h-12" />
         </Link>
 
         <div className="relative z-[90] ml-auto hidden h-14 w-full max-w-[55.5313em] items-center justify-between lg:flex">
@@ -255,9 +255,6 @@ export function Header() {
               {item.label}
             </Link>
           ))}
-          <Link to="/careers" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2]" onClick={() => setOpen(false)}>
-            Trabajo
-          </Link>
           <Link to="/contact" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2]" onClick={() => setOpen(false)}>
             Consultar
           </Link>

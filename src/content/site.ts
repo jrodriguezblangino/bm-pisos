@@ -29,7 +29,7 @@ export const brand = {
 };
 
 export const logos = {
-  mark: publicUrl("logo.jpg"),
+  mark: publicUrl("logo-mark.png"),
 };
 
 export const assets = {
