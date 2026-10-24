@@ -534,27 +534,12 @@ export function YearsRing() {
       <div className="years-ring-copy">
         <h2 id="standard-heading" className="years-ring-title scroll-fade">
           Treinta años en
-          <br className="max-[767px]:hidden" /> el hormigón.
+          <br /> el hormigón.
         </h2>
         <p className="years-ring-lead scroll-fade scroll-fade-late">
           Tercera generación en el oficio. El piso se hace para el uso real: camiones, máquinas, mercadería o público.
         </p>
       </div>
-
-      <nav ref={sheetRef} className="years-sheet" aria-label="Piezas">
-        {plates.map((item, index) => (
-          <button
-            key={item.src}
-            type="button"
-            data-index={index}
-            aria-current={index === (detail ?? active) ? "true" : undefined}
-            onClick={() => chooseFromSheet(index)}
-          >
-            <span className="years-sheet-index">{String(index).padStart(2, "0")}</span>
-            <span>{item.label}</span>
-          </button>
-        ))}
-      </nav>
 
       <div
         ref={viewRef}
@@ -589,6 +574,21 @@ export function YearsRing() {
           </button>
         ) : null}
       </div>
+
+      <nav ref={sheetRef} className="years-sheet" aria-label="Piezas">
+        {plates.map((item, index) => (
+          <button
+            key={item.src}
+            type="button"
+            data-index={index}
+            aria-current={index === (detail ?? active) ? "true" : undefined}
+            onClick={() => chooseFromSheet(index)}
+          >
+            <span className="years-sheet-index">{String(index).padStart(2, "0")}</span>
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }
