@@ -90,6 +90,7 @@ export function YearsRing() {
     let blend = 1;
     let blendV = 0;
     let staggerOn = false;
+    let arcFollow = false;
     let heightFrom = 0;
     let stageHeight = 0;
     let origins: Pose[] = [];
@@ -195,7 +196,9 @@ export function YearsRing() {
     const sample = (index: number, metrics: ReturnType<typeof measure>): Pose => {
       const finalPose = mode === "detail" ? detailPose(index, metrics, liftIndex) : ringPose(index, metrics);
       if (origins.length !== count || blend >= 1) return finalPose;
-      return lerpPose(origins[index], finalPose, progressFor(index));
+      const local = progressFor(index);
+      if (arcFollow && index !== liftIndex) return lerpPose(ringPose(index, metrics), finalPose, local);
+      return lerpPose(origins[index], finalPose, local);
     };
 
     const writePose = (index: number, pose: Pose) => {
@@ -238,9 +241,11 @@ export function YearsRing() {
     const retarget = (next: "ring" | "detail", nextLift: number) => {
       const metrics = measure();
       const captured = Array.from({ length: count }, (_, index) => sample(index, metrics));
+      const followArc = next === "detail" && mode === "ring" && blend >= 1;
       heightFrom = stageHeight || metrics.ringHeight;
       staggerOn = mode !== next;
       origins = captured;
+      arcFollow = followArc;
       mode = next;
       liftIndex = nextLift;
       blend = 0;
@@ -251,7 +256,8 @@ export function YearsRing() {
     const tick = (now: number) => {
       const dt = Math.min(0.032, (now - last) / 1000 || 0.016);
       last = now;
-      if (idle() && !motion.dragging) {
+      const ringLocked = mode === "detail" && blend >= 1;
+      if (!ringLocked && !motion.dragging) {
         const omega = 15;
         const zeta = 0.9;
         const accel = omega * omega * (motion.target - motion.offset) - 2 * zeta * omega * motion.velocity;
@@ -262,14 +268,7 @@ export function YearsRing() {
           motion.velocity = 0;
         }
       }
-      if (idle()) {
-        syncRing();
-        if (!motion.dragging && motion.offset === motion.target) {
-          running = false;
-          view.classList.remove("is-dragging");
-          return;
-        }
-      } else {
+      if (!idle()) {
         const omega = 8;
         const accel = omega * omega * (1 - blend) - 2 * omega * blendV;
         blendV += accel * dt;
@@ -278,19 +277,24 @@ export function YearsRing() {
           blend = 1;
           blendV = 0;
         }
-        if (blend >= 1 && mode === "ring") {
-          motion.target = motion.offset;
-          motion.velocity = 0;
-          syncRing();
+      }
+      if (mode === "detail" && blend >= 1) {
+        motion.target = motion.offset;
+        motion.velocity = 0;
+        paint();
+        running = false;
+        view.classList.remove("is-dragging");
+        return;
+      }
+      if (idle()) {
+        syncRing();
+        if (!motion.dragging && motion.offset === motion.target && motion.velocity === 0) {
           running = false;
           view.classList.remove("is-dragging");
           return;
         }
+      } else {
         paint();
-        if (blend >= 1) {
-          running = false;
-          return;
-        }
       }
       frame = window.requestAnimationFrame(tick);
     };
@@ -303,12 +307,8 @@ export function YearsRing() {
     };
 
     const focusPlate = (index: number) => {
-      if (!idle()) {
-        if (mode === "ring") openDetail(index);
-        return;
-      }
+      if (mode === "detail" && detailIndex >= 0) return;
       motion.target = nearest(motion.offset, index);
-      motion.velocity = 0;
       wake();
     };
 
@@ -326,8 +326,6 @@ export function YearsRing() {
 
     const openDetail = (index: number) => {
       if (mode === "detail" && liftIndex === index && detailIndex === index) return;
-      motion.target = motion.offset;
-      motion.velocity = 0;
       motion.dragging = false;
       view.classList.remove("is-dragging");
       stripShift = 0;
@@ -388,7 +386,7 @@ export function YearsRing() {
         window.setTimeout(() => {
           draggedRef.current = false;
         }, 0);
-        if (idle()) {
+        if (detailIndex < 0) {
           const flick = Math.max(-1.65, Math.min(1.65, motion.velocity * 0.11));
           motion.target = Math.round(motion.offset + flick);
           wake();
@@ -402,7 +400,6 @@ export function YearsRing() {
 
     const onDown = (event: PointerEvent) => {
       if (event.button !== 0 || pointerId !== -1) return;
-      if (!idle() && detailIndex < 0) return;
       if (detailIndex >= 0 && !measure().compact) return;
       pointerId = event.pointerId;
       startX = lastX = event.clientX;
@@ -410,7 +407,6 @@ export function YearsRing() {
       lastTime = performance.now();
       locked = false;
       draggedRef.current = false;
-      motion.velocity = 0;
     };
 
     const onMove = (event: PointerEvent) => {
@@ -424,8 +420,9 @@ export function YearsRing() {
           return;
         }
         locked = true;
-        if (idle()) {
+        if (detailIndex < 0) {
           motion.dragging = true;
+          motion.velocity = 0;
           view.classList.add("is-dragging");
         }
         try {
@@ -446,14 +443,13 @@ export function YearsRing() {
         paint();
         return;
       }
-      if (!idle()) return;
       motion.offset -= stepX / motion.stride;
       motion.velocity = -stepX / motion.stride / (dt / 1000);
       wake();
     };
 
     const onWheel = (event: WheelEvent) => {
-      if (!idle()) return;
+      if (mode === "detail" && blend >= 1) return;
       const horizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY) || event.shiftKey;
       if (!horizontal) return;
       event.preventDefault();
@@ -478,7 +474,6 @@ export function YearsRing() {
         event.preventDefault();
         return;
       }
-      if (!idle()) return;
       if (event.key === "ArrowRight") motion.target = Math.round(motion.offset) + 1;
       else if (event.key === "ArrowLeft") motion.target = Math.round(motion.offset) - 1;
       else if (event.key === "Home") motion.target = nearest(motion.offset, 0);
