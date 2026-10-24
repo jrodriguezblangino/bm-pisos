@@ -37,10 +37,96 @@ export const assets = {
   heroVideo: photo("hero-preview.mp4"),
   floor: photo("pour.jpg"),
   pour: photo("pour.jpg"),
+  yearsNear: photo("vertido-cerca.jpg"),
+  yearsWide: photo("cuadrilla-nave.jpg"),
   hall: photo("hero.jpg"),
   station: photo("pour.jpg"),
   yard: photo("hero.jpg"),
 };
+
+export type YearsPlate = {
+  src: string;
+  alt: string;
+  label: string;
+  kind: string;
+  width: number;
+  height: number;
+};
+
+export const yearsPlates: YearsPlate[] = [
+  {
+    src: photo("descarga-chute.webp"),
+    alt: "Dos personas reciben la descarga de hormigón desde el chute, de noche.",
+    label: "Descarga",
+    kind: "Mixer",
+    width: 1440,
+    height: 1440,
+  },
+  {
+    src: photo("vertido-cerca.jpg"),
+    alt: "Vertido de hormigón con manguera, de cerca, en obra.",
+    label: "Vertido",
+    kind: "Obra",
+    width: 1215,
+    height: 2160,
+  },
+  {
+    src: photo("allanadora.webp"),
+    alt: "Allanadora sobre el hormigón fresco.",
+    label: "Allanadora",
+    kind: "Oficio",
+    width: 1080,
+    height: 1440,
+  },
+  {
+    src: photo("oficio-exterior.webp"),
+    alt: "Allanado de un piso exterior junto a un muro de ladrillo.",
+    label: "Oficio",
+    kind: "Exterior",
+    width: 1440,
+    height: 1440,
+  },
+  {
+    src: photo("nivel-obra.jpg"),
+    alt: "Nivel óptico sobre trípode, al frente de una playa de hormigón.",
+    label: "Nivelación",
+    kind: "Obra",
+    width: 1215,
+    height: 2160,
+  },
+  {
+    src: photo("cuadrilla-nave.jpg"),
+    alt: "Cuadrilla alisando el hormigón frente al mixer, dentro de una nave.",
+    label: "Cuadrilla",
+    kind: "Nave",
+    width: 640,
+    height: 360,
+  },
+  {
+    src: photo("nave-terminada.jpg"),
+    alt: "Piso de hormigón terminado dentro de una nave.",
+    label: "Terminación",
+    kind: "Nave",
+    width: 1215,
+    height: 2160,
+  },
+  {
+    src: photo("planta-losas.jpg"),
+    alt: "Planta industrial con losas de hormigón, vista desde arriba.",
+    label: "Planta",
+    kind: "Industria",
+    width: 1600,
+    height: 900,
+  },
+  {
+    src: photo("estacion-aerea.jpg"),
+    alt: "Estación de servicio con playa de hormigón, vista desde arriba.",
+    label: "Estación",
+    kind: "Servicio",
+    width: 1265,
+    height: 2250,
+  },
+];
 
 export const nav = [
   { label: "Oficio", href: "/about" },

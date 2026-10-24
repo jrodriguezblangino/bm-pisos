@@ -13,6 +13,7 @@ import {
   services,
   stats,
 } from "../content/site";
+import { YearsRing } from "../components/YearsRing";
 import { afterLoader, bindViewport, scrollTop, viewportHeight, watchScrollFades } from "../viewport";
 
 const clients = [
@@ -425,35 +426,8 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="bg-tan pt-20 min-[768px]:pt-28" aria-labelledby="standard-heading">
-        <div className="px-4 min-[768px]:px-6">
-          <div className="mx-auto flex w-full max-w-[1360px] flex-col gap-16">
-            <div className="flex items-end justify-between max-[991px]:flex-col max-[991px]:items-start max-[991px]:gap-6">
-              <div className="scroll-fade w-full max-w-[43.5rem]">
-                <h2 id="standard-heading" className="w-full font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] min-[768px]:text-[3.5rem] min-[992px]:text-[4rem]">
-                  Treinta años en<br className="max-[767px]:hidden" /> el hormigón.
-                </h2>
-              </div>
-              <div className="scroll-fade w-full min-[992px]:w-[27.3125rem] min-[992px]:shrink-0">
-                <p className="w-full border-b border-[#532c1633] pb-6 text-[1.25rem] leading-[1.5]">
-                  Tercera generación en el oficio. El piso se hace para el uso real: camiones, máquinas, mercadería o público.
-                </p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 gap-4 min-[768px]:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] min-[992px]:gap-6">
-              <img
-                src={assets.floor}
-                alt={imageCredit}
-                className="scroll-fade scroll-fade-late aspect-square w-full rounded-lg object-cover min-[768px]:aspect-auto min-[768px]:h-[19.9219rem] min-[992px]:h-[26.5625rem]"
-              />
-              <img
-                src={assets.pour}
-                alt={imageCredit}
-                className="scroll-fade scroll-fade-late aspect-square w-full rounded-lg object-cover min-[768px]:aspect-auto min-[768px]:h-[19.9219rem] min-[992px]:h-[26.5625rem]"
-              />
-            </div>
-          </div>
-        </div>
+      <section className="years-ring" aria-labelledby="standard-heading">
+        <YearsRing />
       </section>
 
       <section className="bg-tan pb-[7.5rem] pt-16 min-[768px]:pb-36 min-[768px]:pt-20" aria-labelledby="trusted-heading">

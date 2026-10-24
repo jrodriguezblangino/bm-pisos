@@ -604,6 +604,319 @@ html .scroll-fade.is-in {
     scroll-fade-in 1400ms cubic-bezier(0.25, 0.1, 0.25, 1) var(--fade-delay) forwards;
 }
 
+.years-ring {
+  overflow-x: clip;
+  background: var(--color-ink);
+  color: var(--color-tan);
+  padding: 4.5rem 0 3.25rem;
+}
+
+.years-ring-layout {
+  display: grid;
+  grid-template-areas:
+    "copy"
+    "view"
+    "caption"
+    "sheet";
+  gap: 1.25rem 2rem;
+}
+
+.years-ring-copy,
+.years-sheet,
+.years-ring-caption {
+  width: min(85rem, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.years-ring-copy {
+  grid-area: copy;
+}
+
+.years-ring-title {
+  max-width: 11em;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.years-ring-lead {
+  max-width: 28rem;
+  margin: 1rem 0 0;
+  color: rgb(244 241 235 / 0.78);
+  font-size: 1.125rem;
+  line-height: 1.45;
+}
+
+.years-ring-view {
+  grid-area: view;
+  position: relative;
+  perspective: 1200px;
+  touch-action: pan-y;
+  overscroll-behavior-x: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+}
+
+.years-ring-view:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: -6px;
+}
+
+.years-ring-view.is-dragging {
+  cursor: grabbing;
+}
+
+.years-ring-stage {
+  position: relative;
+  height: var(--ring-height, 28rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform-style: preserve-3d;
+}
+
+.years-ring-item {
+  position: absolute;
+  top: var(--ring-anchor, 46%);
+  left: 50%;
+  width: var(--ring-card, 62vw);
+  aspect-ratio: 2 / 3;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 0.2rem;
+  background: #141210;
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.38);
+  transform: translate(-50%, -50%);
+  transform-style: preserve-3d;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.years-ring-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
+.years-ring-item[data-far] {
+  visibility: hidden;
+}
+
+.years-ring-view.is-open {
+  cursor: default;
+}
+
+.years-ring-caption {
+  grid-area: caption;
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  margin-top: -0.25rem;
+  text-align: center;
+}
+
+.years-ring-caption-label {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.years-ring-caption-kind,
+.years-sheet-kind,
+.years-sheet-index {
+  font-family: var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.years-ring-caption-kind {
+  color: rgb(244 241 235 / 0.55);
+  font-size: 0.75rem;
+}
+
+.years-ring-place {
+  margin-top: 0.35rem;
+  color: var(--color-orange);
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.years-ring-close {
+  margin-top: 0.85rem;
+  min-height: 2.75rem;
+  padding: 0.35rem 0.15rem 0.45rem;
+  border: 0;
+  border-bottom: 2px solid var(--color-orange);
+  background: transparent;
+  color: var(--color-tan);
+  font-family: var(--font-heading);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.years-ring-close:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 4px;
+}
+
+.years-sheet {
+  grid-area: sheet;
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-bottom: 0.25rem;
+}
+
+.years-sheet::-webkit-scrollbar {
+  display: none;
+}
+
+.years-sheet button {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: auto auto;
+  gap: 0.35rem 0.55rem;
+  align-items: baseline;
+  min-height: 2.75rem;
+  scroll-snap-align: start;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid rgb(244 241 235 / 0.16);
+  background: transparent;
+  color: rgb(244 241 235 / 0.62);
+  font-family: var(--font-heading);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-align: left;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.years-sheet button:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 2px;
+}
+
+.years-sheet-kind {
+  display: none;
+}
+
+.years-sheet button[aria-current="true"] {
+  border-color: transparent;
+  background: rgb(244 241 235 / 0.08);
+  color: var(--color-tan);
+}
+
+.years-sheet button[aria-current="true"] .years-sheet-index {
+  color: var(--color-orange);
+}
+
+@media (min-width: 768px) {
+  .years-ring {
+    padding-top: 6rem;
+    padding-bottom: 4rem;
+  }
+
+  .years-ring-title {
+    font-size: 3.5rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .years-ring-layout {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.15fr);
+    grid-template-areas:
+      "copy sheet"
+      "view view"
+      "caption caption";
+    align-items: end;
+  }
+
+  .years-ring-title {
+    font-size: 4rem;
+  }
+
+  .years-ring-lead {
+    margin-top: 1.25rem;
+    font-size: 1.25rem;
+  }
+
+  .years-sheet {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 1.25rem;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  .years-sheet button {
+    grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+    min-height: 2.6rem;
+    padding: 0.7rem 0 0.45rem;
+    border: 0;
+    border-top: 1px solid rgb(244 241 235 / 0.16);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .years-sheet-kind {
+    display: block;
+    color: rgb(244 241 235 / 0.78);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+  }
+
+  .years-sheet button[aria-current="true"] {
+    background: transparent;
+  }
+
+  .years-ring-caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.35rem 1.15rem;
+  }
+
+  .years-ring-caption-kind {
+    font-size: 1rem;
+  }
+
+  .years-ring-place {
+    margin-top: 0;
+    font-size: 1.125rem;
+    letter-spacing: 0.12em;
+  }
+
+  .years-ring-close {
+    flex-basis: 100%;
+    width: max-content;
+    margin-top: 0.35rem;
+  }
+}
+
 .menu-toggle {
   display: flex;
   height: 2.75rem;
