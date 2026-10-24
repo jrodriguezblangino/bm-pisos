@@ -732,26 +732,9 @@ html .scroll-fade.is-in {
   text-transform: uppercase;
 }
 
-.years-ring-caption-kind,
-.years-sheet-kind,
 .years-sheet-index {
   font-family: var(--font-mono);
   letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.years-ring-caption-kind {
-  color: rgb(244 241 235 / 0.55);
-  font-size: 0.75rem;
-}
-
-.years-ring-place {
-  margin-top: 0.35rem;
-  color: var(--color-orange);
-  font-family: var(--font-heading);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
@@ -819,10 +802,6 @@ html .scroll-fade.is-in {
   outline-offset: 2px;
 }
 
-.years-sheet-kind {
-  display: none;
-}
-
 .years-sheet button[aria-current="true"] {
   border-color: transparent;
   background: rgb(244 241 235 / 0.08);
@@ -872,20 +851,13 @@ html .scroll-fade.is-in {
   }
 
   .years-sheet button {
-    grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+    grid-template-columns: 1.6rem minmax(0, 1fr);
     min-height: 2.6rem;
     padding: 0.7rem 0 0.45rem;
     border: 0;
     border-top: 1px solid rgb(244 241 235 / 0.16);
     border-radius: 0;
     background: transparent;
-  }
-
-  .years-sheet-kind {
-    display: block;
-    color: rgb(244 241 235 / 0.78);
-    font-size: 0.8125rem;
-    letter-spacing: 0.06em;
   }
 
   .years-sheet button[aria-current="true"] {
@@ -898,16 +870,6 @@ html .scroll-fade.is-in {
     align-items: baseline;
     justify-content: center;
     gap: 0.35rem 1.15rem;
-  }
-
-  .years-ring-caption-kind {
-    font-size: 1rem;
-  }
-
-  .years-ring-place {
-    margin-top: 0;
-    font-size: 1.125rem;
-    letter-spacing: 0.12em;
   }
 
   .years-ring-close {

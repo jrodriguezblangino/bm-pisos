@@ -21,10 +21,6 @@ type Pose = {
   opacity: number;
 };
 
-type Channel = { value: number; velocity: number };
-
-const poseKeys = ["x", "y", "z", "rot", "scale", "opacity"] as const;
-
 function wrapDelta(index: number, offset: number) {
   let delta = index - offset;
   delta %= count;
@@ -42,14 +38,15 @@ function mod(value: number) {
   return ((value % count) + count) % count;
 }
 
-function createChannels(): Record<(typeof poseKeys)[number], Channel> {
+function lerpPose(from: Pose, to: Pose, amount: number): Pose {
+  const t = Math.min(1, Math.max(0, amount));
   return {
-    x: { value: 0, velocity: 0 },
-    y: { value: 0, velocity: 0 },
-    z: { value: 0, velocity: 0 },
-    rot: { value: 0, velocity: 0 },
-    scale: { value: 1, velocity: 0 },
-    opacity: { value: 1, velocity: 0 },
+    x: from.x + (to.x - from.x) * t,
+    y: from.y + (to.y - from.y) * t,
+    z: from.z + (to.z - from.z) * t,
+    rot: from.rot + (to.rot - from.rot) * t,
+    scale: from.scale + (to.scale - from.scale) * t,
+    opacity: from.opacity + (to.opacity - from.opacity) * t,
   };
 }
 
@@ -75,7 +72,6 @@ export function YearsRing() {
     const view = viewRef.current;
     if (!view) return;
     const motion = motionRef.current;
-    const channels = Array.from({ length: count }, createChannels);
     let frame = 0;
     let running = false;
     let last = 0;
@@ -87,9 +83,16 @@ export function YearsRing() {
     let lastTime = 0;
     let locked = false;
     let detailIndex = -1;
-    let returning = false;
     let ringHeight = 0;
     let stripShift = 0;
+    let mode: "ring" | "detail" = "ring";
+    let liftIndex = 0;
+    let blend = 1;
+    let blendV = 0;
+    let staggerOn = false;
+    let heightFrom = 0;
+    let stageHeight = 0;
+    let origins: Pose[] = [];
 
     const measure = () => {
       const width = view.clientWidth || window.innerWidth;
@@ -157,7 +160,7 @@ export function YearsRing() {
         return {
           x: layout.imageCx - metrics.width / 2,
           y: layout.imageCy - metrics.anchor,
-          z: 0,
+          z: 12,
           rot: 0,
           scale: layout.imageScale,
           opacity: 1,
@@ -175,86 +178,80 @@ export function YearsRing() {
       };
     };
 
-    const readPose = (index: number): Pose => {
-      const channel = channels[index];
-      return {
-        x: channel.x.value,
-        y: channel.y.value,
-        z: channel.z.value,
-        rot: channel.rot.value,
-        scale: channel.scale.value,
-        opacity: channel.opacity.value,
-      };
+    const idle = () => mode === "ring" && blend >= 1;
+
+    // The selected card leaves at once and unwinds its ring tilt. The rest hold the arc, then drop into the strip.
+    const progressFor = (index: number) => {
+      const t = Math.min(1, Math.max(0, blend));
+      if (!staggerOn) return t;
+      if (mode === "detail") {
+        if (index === liftIndex) return t;
+        return Math.min(1, Math.max(0, (t - 0.62) / 0.38));
+      }
+      if (index === liftIndex) return Math.min(1, Math.max(0, (t - 0.28) / 0.72));
+      return Math.min(1, t / 0.62);
     };
 
-    const writePose = (index: number, pose: Pose, snap: boolean) => {
-      const channel = channels[index];
-      poseKeys.forEach((key) => {
-        channel[key].value = pose[key];
-        if (snap) channel[key].velocity = 0;
-      });
+    const sample = (index: number, metrics: ReturnType<typeof measure>): Pose => {
+      const finalPose = mode === "detail" ? detailPose(index, metrics, liftIndex) : ringPose(index, metrics);
+      if (origins.length !== count || blend >= 1) return finalPose;
+      return lerpPose(origins[index], finalPose, progressFor(index));
+    };
+
+    const writePose = (index: number, pose: Pose) => {
       const node = itemsRef.current[index];
       if (!node) return;
+      const engaged = !idle();
       node.style.transform = `translate(-50%, -50%) translate3d(${pose.x.toFixed(2)}px, ${pose.y.toFixed(2)}px, ${pose.z.toFixed(2)}px) rotateZ(${pose.rot.toFixed(2)}deg) scale(${pose.scale.toFixed(4)})`;
       node.style.opacity = pose.opacity.toFixed(3);
       node.style.zIndex = String(
-        detailIndex >= 0 || returning ? 20 + Math.round(pose.scale * 30) : 40 - Math.round(Math.abs(wrapDelta(index, motion.offset)) * 6),
+        engaged && index === liftIndex ? 80 : engaged ? 20 + Math.round(pose.scale * 24) : 40 - Math.round(Math.abs(wrapDelta(index, motion.offset)) * 6),
       );
-      const hidden = detailIndex < 0 && !returning && pose.opacity < 0.2;
-      node.style.pointerEvents = detailIndex === index || pose.opacity >= 0.45 ? "auto" : "none";
-      node.toggleAttribute("data-far", hidden);
+      node.style.pointerEvents = (engaged && index === liftIndex) || pose.opacity >= 0.45 ? "auto" : "none";
+      node.toggleAttribute("data-far", !engaged && pose.opacity < 0.2);
     };
 
     const syncRing = () => {
       const metrics = measure();
-      for (let index = 0; index < count; index += 1) writePose(index, ringPose(index, metrics), true);
+      for (let index = 0; index < count; index += 1) writePose(index, ringPose(index, metrics));
       const next = mod(Math.round(motion.offset));
       if (next !== activeRef.current) {
         activeRef.current = next;
         setActive(next);
       }
+      stageHeight = ringHeight;
+      heightFrom = ringHeight;
       view.style.setProperty("--ring-height", `${ringHeight.toFixed(2)}px`);
       view.classList.remove("is-open");
     };
 
-    const stepPoses = (dt: number) => {
+    const paint = () => {
       const metrics = measure();
-      const openIndex = detailIndex;
-      let settled = true;
-      const omega = 11;
-      for (let index = 0; index < count; index += 1) {
-        const target = openIndex >= 0 ? detailPose(index, metrics, openIndex) : ringPose(index, metrics);
-        const channel = channels[index];
-        poseKeys.forEach((key) => {
-          const current = channel[key];
-          const accel = omega * omega * (target[key] - current.value) - 2 * omega * current.velocity;
-          current.velocity += accel * dt;
-          current.value += current.velocity * dt;
-          if (Math.abs(target[key] - current.value) < 0.04 && Math.abs(current.velocity) < 0.04) {
-            current.value = target[key];
-            current.velocity = 0;
-          } else {
-            settled = false;
-          }
-        });
-        writePose(index, readPose(index), false);
-      }
-      const layout = openIndex >= 0 ? detailLayout(metrics, openIndex) : detailLayout(metrics, 0);
-      let maxScale = 1;
-      for (let index = 0; index < count; index += 1) maxScale = Math.max(maxScale, channels[index].scale.value);
-      const grown = Math.min(1, Math.max(0, (maxScale - 1) / Math.max(0.01, layout.imageScale - 1)));
-      const detailHeight = layout.detailHeight;
-      const height = metrics.ringHeight + (detailHeight - metrics.ringHeight) * grown;
-      view.style.setProperty("--ring-height", `${height.toFixed(2)}px`);
-      view.classList.toggle("is-open", detailIndex >= 0);
-      return settled;
+      const destHeight = mode === "detail" ? detailLayout(metrics, liftIndex).detailHeight : metrics.ringHeight;
+      const fromHeight = heightFrom || metrics.ringHeight;
+      stageHeight = fromHeight + (destHeight - fromHeight) * progressFor(liftIndex);
+      view.style.setProperty("--ring-height", `${stageHeight.toFixed(2)}px`);
+      view.classList.toggle("is-open", !idle());
+      for (let index = 0; index < count; index += 1) writePose(index, sample(index, metrics));
+    };
+
+    const retarget = (next: "ring" | "detail", nextLift: number) => {
+      const metrics = measure();
+      const captured = Array.from({ length: count }, (_, index) => sample(index, metrics));
+      heightFrom = stageHeight || metrics.ringHeight;
+      staggerOn = mode !== next;
+      origins = captured;
+      mode = next;
+      liftIndex = nextLift;
+      blend = 0;
+      blendV = 0;
+      paint();
     };
 
     const tick = (now: number) => {
       const dt = Math.min(0.032, (now - last) / 1000 || 0.016);
       last = now;
-      const inDetail = detailIndex >= 0 || returning;
-      if (!inDetail && !motion.dragging) {
+      if (idle() && !motion.dragging) {
         const omega = 15;
         const zeta = 0.9;
         const accel = omega * omega * (motion.target - motion.offset) - 2 * zeta * omega * motion.velocity;
@@ -265,7 +262,7 @@ export function YearsRing() {
           motion.velocity = 0;
         }
       }
-      if (!inDetail) {
+      if (idle()) {
         syncRing();
         if (!motion.dragging && motion.offset === motion.target) {
           running = false;
@@ -273,14 +270,24 @@ export function YearsRing() {
           return;
         }
       } else {
-        const settled = stepPoses(dt);
-        if (settled && detailIndex < 0) {
-          returning = false;
+        const omega = 8;
+        const accel = omega * omega * (1 - blend) - 2 * omega * blendV;
+        blendV += accel * dt;
+        blend += blendV * dt;
+        if (1 - blend < 0.0015 && Math.abs(blendV) < 0.012) {
+          blend = 1;
+          blendV = 0;
+        }
+        if (blend >= 1 && mode === "ring") {
+          motion.target = motion.offset;
+          motion.velocity = 0;
           syncRing();
           running = false;
+          view.classList.remove("is-dragging");
           return;
         }
-        if (settled && !motion.dragging) {
+        paint();
+        if (blend >= 1) {
           running = false;
           return;
         }
@@ -296,7 +303,10 @@ export function YearsRing() {
     };
 
     const focusPlate = (index: number) => {
-      if (detailIndex >= 0) return;
+      if (!idle()) {
+        if (mode === "ring") openDetail(index);
+        return;
+      }
       motion.target = nearest(motion.offset, index);
       motion.velocity = 0;
       wake();
@@ -315,15 +325,18 @@ export function YearsRing() {
     };
 
     const openDetail = (index: number) => {
-      if (detailIndex === index) return;
-      detailIndex = index;
+      if (mode === "detail" && liftIndex === index && detailIndex === index) return;
+      motion.target = motion.offset;
+      motion.velocity = 0;
+      motion.dragging = false;
+      view.classList.remove("is-dragging");
       stripShift = 0;
-      returning = true;
+      retarget("detail", index);
+      detailIndex = index;
       detailRef.current = index;
       activeRef.current = index;
       setDetail(index);
       setActive(index);
-      view.classList.add("is-open");
       wake();
     };
 
@@ -332,9 +345,9 @@ export function YearsRing() {
         focusPlate(index);
         return;
       }
-      if (detailIndex === index) return;
+      if (mode === "detail" && liftIndex === index) return;
+      retarget("detail", index);
       detailIndex = index;
-      returning = true;
       detailRef.current = index;
       activeRef.current = index;
       setDetail(index);
@@ -344,11 +357,11 @@ export function YearsRing() {
 
     const closeDetail = () => {
       if (detailIndex < 0) return;
-      detailIndex = -1;
-      stripShift = 0;
-      returning = true;
-      detailRef.current = null;
       const centered = mod(Math.round(motion.offset));
+      retarget("ring", liftIndex);
+      stripShift = 0;
+      detailIndex = -1;
+      detailRef.current = null;
       activeRef.current = centered;
       setDetail(null);
       setActive(centered);
@@ -358,14 +371,14 @@ export function YearsRing() {
     focusRef.current = focusPlate;
     detailApi.current = { open: openDetail, close: closeDetail, move: moveDetail };
     applyRef.current = () => {
-      if (detailIndex >= 0 || returning) stepPoses(0.016);
-      else syncRing();
+      if (idle()) syncRing();
+      else paint();
     };
 
     syncRing();
     const observer = new ResizeObserver(() => {
-      if (detailIndex < 0 && !returning) syncRing();
-      else wake();
+      if (idle()) syncRing();
+      else paint();
     });
     observer.observe(view);
     const endDrag = (event: PointerEvent) => {
@@ -375,7 +388,7 @@ export function YearsRing() {
         window.setTimeout(() => {
           draggedRef.current = false;
         }, 0);
-        if (detailIndex < 0) {
+        if (idle()) {
           const flick = Math.max(-1.65, Math.min(1.65, motion.velocity * 0.11));
           motion.target = Math.round(motion.offset + flick);
           wake();
@@ -389,6 +402,7 @@ export function YearsRing() {
 
     const onDown = (event: PointerEvent) => {
       if (event.button !== 0 || pointerId !== -1) return;
+      if (!idle() && detailIndex < 0) return;
       if (detailIndex >= 0 && !measure().compact) return;
       pointerId = event.pointerId;
       startX = lastX = event.clientX;
@@ -400,7 +414,7 @@ export function YearsRing() {
     };
 
     const onMove = (event: PointerEvent) => {
-      if (event.pointerId !== pointerId || detailIndex >= 0) return;
+      if (event.pointerId !== pointerId) return;
       const dx = event.clientX - startX;
       const dy = event.clientY - startY;
       if (!locked) {
@@ -410,7 +424,7 @@ export function YearsRing() {
           return;
         }
         locked = true;
-        if (detailIndex < 0) {
+        if (idle()) {
           motion.dragging = true;
           view.classList.add("is-dragging");
         }
@@ -426,19 +440,20 @@ export function YearsRing() {
       lastX = event.clientX;
       lastTime = now;
       if (detailIndex >= 0) {
+        if (mode !== "detail" || blend < 0.92) return;
         stripShift += stepX;
         clampStrip();
-        const metrics = measure();
-        for (let index = 0; index < count; index += 1) writePose(index, detailPose(index, metrics, detailIndex), true);
+        paint();
         return;
       }
+      if (!idle()) return;
       motion.offset -= stepX / motion.stride;
       motion.velocity = -stepX / motion.stride / (dt / 1000);
       wake();
     };
 
     const onWheel = (event: WheelEvent) => {
-      if (detailIndex >= 0) return;
+      if (!idle()) return;
       const horizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY) || event.shiftKey;
       if (!horizontal) return;
       event.preventDefault();
@@ -463,6 +478,7 @@ export function YearsRing() {
         event.preventDefault();
         return;
       }
+      if (!idle()) return;
       if (event.key === "ArrowRight") motion.target = Math.round(motion.offset) + 1;
       else if (event.key === "ArrowLeft") motion.target = Math.round(motion.offset) - 1;
       else if (event.key === "Home") motion.target = nearest(motion.offset, 0);
@@ -541,7 +557,6 @@ export function YearsRing() {
           >
             <span className="years-sheet-index">{String(index).padStart(2, "0")}</span>
             <span>{item.label}</span>
-            <span className="years-sheet-kind">{item.kind}</span>
           </button>
         ))}
       </nav>
@@ -573,8 +588,6 @@ export function YearsRing() {
 
       <div className="years-ring-caption" aria-live="polite">
         <span className="years-ring-caption-label">{plate.label}</span>
-        <span className="years-ring-caption-kind">{plate.kind}</span>
-        <span className="years-ring-place">Villa Carlos Paz</span>
         {detail !== null ? (
           <button type="button" className="years-ring-close" onClick={() => detailApi.current.close()}>
             Cerrar
