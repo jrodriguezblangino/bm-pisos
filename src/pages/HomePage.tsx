@@ -19,6 +19,12 @@ import { afterLoader, bindViewport, scrollTop, viewportHeight, watchScrollFades 
 
 const stationPlate = yearsPlates.find((plate) => plate.label === "Estación") ?? yearsPlates[0];
 
+const scopePhotos: Record<string, (typeof yearsPlates)[number] | undefined> = {
+  industrial: yearsPlates.find((plate) => plate.label === "Planta"),
+  comercial: yearsPlates.find((plate) => plate.label === "Terminación"),
+  estaciones: yearsPlates.find((plate) => plate.label === "Estación"),
+};
+
 const clients = [
   { src: publicUrl("logos/ypf-logo.svg"), alt: "YPF", height: "h-10" },
   { src: publicUrl("logos/shell.svg"), alt: "Shell", height: "h-[2.15rem]" },
@@ -532,6 +538,7 @@ export function HomePage() {
             <div className="relative mx-auto h-[min(51.875rem,calc(100svh-5.5rem))] w-full max-w-[1360px] px-4 min-[768px]:px-6 min-[992px]:h-[min(51.875rem,calc(100svh-2.5rem))] min-[992px]:px-0">
               {services.map((service, index) => {
                 const card = scopeFrame(index, scopePos, compactScope);
+                const plate = scopePhotos[service.slug];
                 return (
                   <article
                     key={service.slug}
@@ -547,7 +554,13 @@ export function HomePage() {
                         opacity: card.image,
                       }}
                     >
-                      <img src={service.image} alt={service.imageAlt} className="h-full w-full object-cover" />
+                      <img
+                        src={plate?.src ?? service.image}
+                        alt={plate?.alt ?? service.imageAlt}
+                        width={plate?.width}
+                        height={plate?.height}
+                        className={`h-full w-full object-cover${plate ? ` scope-photo scope-photo-${service.slug}` : ""}`}
+                      />
                     </div>
                     <div className="flex flex-col items-start justify-center gap-5" style={{ opacity: card.text }}>
                       <p className="font-mono text-base tracking-[0.36em] text-[#898b8d]">[ {service.index}/04 ]</p>
