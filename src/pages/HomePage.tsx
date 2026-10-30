@@ -128,6 +128,8 @@ function ClientMarquee() {
 }
 
 export function HomePage() {
+  const [capability, setCapability] = useState<number | null>(null);
+  const craftTouch = useRef({ id: -1, x: 0, y: 0, moved: false });
   const [slide, setSlide] = useState(0);
   const [workDrag, setWorkDrag] = useState(0);
   const [workDragging, setWorkDragging] = useState(false);
@@ -459,15 +461,61 @@ export function HomePage() {
             </p>
           </div>
           <div className="craft-grid">
-            {capabilities.map((item, index) => (
-              <article key={item.title} className="craft-plate scroll-fade">
-                <div className="craft-plate-face">
-                  <p className="craft-plate-index">{String(index + 1).padStart(2, "0")}</p>
-                  <h3 className="craft-plate-title">{item.title}</h3>
-                  <p className="craft-plate-body">{item.body}</p>
-                </div>
-              </article>
-            ))}
+            {capabilities.map((item, index) => {
+              const expanded = capability === index;
+              return (
+                <article
+                  key={item.title}
+                  className={`craft-plate scroll-fade${expanded ? " is-open" : ""}`}
+                  onPointerEnter={(event) => {
+                    if (event.pointerType !== "mouse") return;
+                    setCapability(index);
+                  }}
+                  onPointerLeave={(event) => {
+                    if (event.pointerType !== "mouse") return;
+                    setCapability((current) => (current === index ? null : current));
+                  }}
+                  onPointerDown={(event) => {
+                    if (event.pointerType === "mouse") return;
+                    craftTouch.current = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
+                  }}
+                  onPointerMove={(event) => {
+                    if (event.pointerType === "mouse" || event.pointerId !== craftTouch.current.id || craftTouch.current.moved) return;
+                    if (Math.hypot(event.clientX - craftTouch.current.x, event.clientY - craftTouch.current.y) > 10) craftTouch.current.moved = true;
+                  }}
+                  onPointerUp={(event) => {
+                    if (event.pointerType === "mouse" || event.pointerId !== craftTouch.current.id || craftTouch.current.moved) return;
+                    setCapability((current) => (current === index ? null : index));
+                  }}
+                  onPointerCancel={() => {
+                    craftTouch.current.moved = true;
+                  }}
+                >
+                  <div className="craft-plate-face">
+                    <p className="craft-plate-index">{String(index + 1).padStart(2, "0")}</p>
+                    <h3 className="craft-plate-title">
+                      <button
+                        type="button"
+                        className="craft-plate-toggle"
+                        aria-expanded={expanded}
+                        aria-controls={`capability-${index}`}
+                        onClick={(event) => {
+                          if (event.detail !== 0) return;
+                          setCapability((current) => (current === index ? null : index));
+                        }}
+                      >
+                        {item.title}
+                      </button>
+                    </h3>
+                    <div id={`capability-${index}`} className="craft-plate-more" aria-hidden={expanded ? undefined : true}>
+                      <div className="craft-plate-more-inner">
+                        <p className="craft-plate-body">{item.body}</p>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>

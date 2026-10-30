@@ -959,6 +959,7 @@ html .scroll-fade.is-in {
 
 .craft-grid {
   display: grid;
+  align-items: start;
   gap: 0.75rem;
 }
 
@@ -980,6 +981,7 @@ html .scroll-fade.is-in {
   --craft-delay: 150ms;
   transform: translateY(1rem) scale(0.97);
   transform-origin: 50% 0;
+  touch-action: pan-y;
 }
 
 .craft-band .craft-plate:nth-child(2) {
@@ -1003,7 +1005,7 @@ html .scroll-fade.is-in {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   column-gap: 1rem;
-  row-gap: 0.4rem;
+  row-gap: 0;
   height: 100%;
   padding: 1.2rem 1.15rem 1.25rem;
   border: 1px solid rgb(244 241 235 / 0.16);
@@ -1046,11 +1048,63 @@ html .scroll-fade.is-in {
   text-transform: uppercase;
 }
 
+.craft-plate-toggle {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  text-align: left;
+  text-transform: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.craft-plate-toggle:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 4px;
+}
+
+.craft-plate-more {
+  display: grid;
+  grid-column: 2;
+  grid-row: 2;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 400ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.craft-plate.is-open .craft-plate-more {
+  grid-template-rows: 1fr;
+}
+
+.craft-plate-more-inner {
+  overflow: hidden;
+}
+
 .craft-plate-body {
   margin: 0;
+  padding-top: 0.65rem;
   color: rgb(244 241 235 / 0.78);
   font-size: 1.0625rem;
   line-height: 1.45;
+  opacity: 0;
+  transform: translateY(0.4rem);
+  transition:
+    opacity 280ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 280ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.craft-plate.is-open .craft-plate-body {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 360ms cubic-bezier(0.23, 1, 0.32, 1) 70ms,
+    transform 400ms cubic-bezier(0.23, 1, 0.32, 1) 40ms;
 }
 
 @keyframes craft-copy-in {
@@ -1080,7 +1134,8 @@ html .scroll-fade.is-in {
     transform: translateY(-0.35rem);
   }
 
-  .craft-plate:hover .craft-plate-face::before {
+  .craft-plate:hover .craft-plate-face::before,
+  .craft-plate.is-open .craft-plate-face::before {
     transform: scaleX(2.2);
   }
 }
@@ -1094,9 +1149,16 @@ html .scroll-fade.is-in {
     animation: none;
   }
 
+  .craft-plate:hover .craft-plate-face,
+  .craft-plate:hover .craft-plate-face::before,
+  .craft-plate.is-open .craft-plate-face::before,
   .craft-plate-face,
-  .craft-plate-face::before {
+  .craft-plate-face::before,
+  .craft-plate-more,
+  .craft-plate-body,
+  .craft-plate.is-open .craft-plate-body {
     transition: none;
+    transform: none;
   }
 }
 
@@ -1131,7 +1193,7 @@ html .scroll-fade.is-in {
   .craft-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0.7rem;
-    align-items: stretch;
+    align-items: start;
   }
 
   .craft-plate {
@@ -1141,9 +1203,17 @@ html .scroll-fade.is-in {
   .craft-plate-face {
     grid-template-columns: 1fr;
     align-content: start;
-    row-gap: 0.85rem;
     width: 100%;
     padding: 1.4rem 1.2rem 1.5rem;
+  }
+
+  .craft-plate-more {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .craft-plate-body {
+    padding-top: 0.85rem;
   }
 
   .craft-plate-index {
@@ -1154,6 +1224,7 @@ html .scroll-fade.is-in {
   }
 
   .craft-plate-title {
+    margin-top: 0.85rem;
     font-size: 1.85rem;
   }
 
