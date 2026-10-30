@@ -12,9 +12,12 @@ import {
   publicUrl,
   services,
   stats,
+  yearsPlates,
 } from "../content/site";
 import { YearsRing } from "../components/YearsRing";
 import { afterLoader, bindViewport, scrollTop, viewportHeight, watchScrollFades } from "../viewport";
+
+const stationPlate = yearsPlates.find((plate) => plate.label === "Estación") ?? yearsPlates[0];
 
 const clients = [
   { src: publicUrl("logos/ypf-logo.svg"), alt: "YPF", height: "h-10" },
@@ -125,7 +128,6 @@ function ClientMarquee() {
 }
 
 export function HomePage() {
-  const [capability, setCapability] = useState<number | null>(null);
   const [slide, setSlide] = useState(0);
   const [workDrag, setWorkDrag] = useState(0);
   const [workDragging, setWorkDragging] = useState(false);
@@ -440,71 +442,32 @@ export function HomePage() {
         <div className="mx-auto max-w-[1360px] border-b border-[#532c1633]" />
       </section>
 
-      <section className="relative -mb-20 pb-20 text-tan" aria-labelledby="all-in-heading">
-        <div className="scroll-fade absolute inset-0">
-          <img src={assets.yard} alt={imageCredit} className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-black/40" />
+      <section className="craft-band relative -mb-20 pb-20 text-tan" aria-labelledby="all-in-heading">
+        <div className="craft-band-photo absolute inset-0" aria-hidden="true">
+          <img src={stationPlate.src} alt="" width={stationPlate.width} height={stationPlate.height} />
+          <div className="craft-band-shade" />
         </div>
-        <div className="relative mx-auto flex min-h-svh w-full max-w-[1360px] flex-col justify-end gap-16 px-4 pt-32 min-[768px]:gap-24 min-[768px]:px-6 min-[768px]:pt-36 min-[992px]:px-0 min-[992px]:pt-40">
-          <div className="scroll-fade flex flex-col items-start gap-6">
-            <h2 id="all-in-heading" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2] min-[768px]:text-[3.5rem]">
+        <div className="relative mx-auto flex min-h-svh w-full max-w-[1360px] flex-col justify-end gap-14 px-4 pt-32 min-[768px]:gap-16 min-[768px]:px-6 min-[768px]:pt-36 min-[992px]:gap-20 min-[992px]:px-0 min-[992px]:pt-40">
+          <div className="flex max-w-[40rem] flex-col items-start gap-5">
+            <h2 id="all-in-heading" className="craft-copy scroll-fade font-heading text-[2.65rem] font-semibold uppercase leading-[0.96] min-[768px]:text-[3.5rem] min-[1200px]:text-[4rem]">
               El oficio,
               <br />
               en la obra.
             </h2>
-            <p className="max-w-[43.625rem] text-[1.25rem] leading-[1.5]">
+            <p className="craft-lead scroll-fade max-w-[34rem] text-[1.125rem] leading-[1.45] text-tan/80 min-[768px]:text-[1.25rem]">
               No es solo alisar. Es dejar un piso que aguante el proyecto para el que fue pedido.
             </p>
           </div>
-          <div className="grid min-h-[14em] items-start gap-6 [overflow-anchor:none] min-[768px]:grid-cols-2 min-[1200px]:grid-cols-4">
-            {capabilities.map((item, index) => {
-              const expanded = capability === index;
-              return (
-                <div
-                  key={item.title}
-                  className="scroll-fade scroll-fade-late overflow-hidden rounded-lg border border-black/10 bg-tan text-ink"
-                  onPointerEnter={(event) => {
-                    if (event.pointerType !== "mouse") return;
-                    setCapability(index);
-                  }}
-                  onPointerLeave={(event) => {
-                    if (event.pointerType !== "mouse") return;
-                    setCapability((current) => (current === index ? null : current));
-                  }}
-                  onPointerUp={(event) => {
-                    if (event.pointerType !== "touch") return;
-                    setCapability(expanded ? null : index);
-                  }}
-                  onClick={(event) => {
-                    if (event.detail !== 0) return;
-                    setCapability(expanded ? null : index);
-                  }}
-                >
-                  <button
-                    type="button"
-                    className="flex w-full items-start justify-between gap-2 px-6 py-6 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-orange"
-                    aria-expanded={expanded}
-                    aria-controls={`capability-${index}`}
-                  >
-                    <span className="font-heading text-[1.125rem] font-semibold uppercase leading-[1.2] min-[768px]:text-2xl">{item.title}</span>
-                    <span
-                      className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center text-ink transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
-                      style={{ transform: expanded ? "rotate(-180deg)" : "rotate(0deg)" }}
-                      aria-hidden="true"
-                    >
-                      <svg viewBox="0 0 12 8" className="h-full w-full" fill="none">
-                        <path opacity="0.5" d="M6 7.4L0 1.4L1.4 0L6 4.6L10.6 0L12 1.4L6 7.4Z" fill="currentColor" />
-                      </svg>
-                    </span>
-                  </button>
-                  <div id={`capability-${index}`} className={`grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-                    <div className="overflow-hidden">
-                      <p className="px-6 pb-4 text-base leading-6">{item.body}</p>
-                    </div>
-                  </div>
+          <div className="craft-grid">
+            {capabilities.map((item, index) => (
+              <article key={item.title} className="craft-plate scroll-fade">
+                <div className="craft-plate-face">
+                  <p className="craft-plate-index">{String(index + 1).padStart(2, "0")}</p>
+                  <h3 className="craft-plate-title">{item.title}</h3>
+                  <p className="craft-plate-body">{item.body}</p>
                 </div>
-              );
-            })}
+              </article>
+            ))}
           </div>
         </div>
       </section>
