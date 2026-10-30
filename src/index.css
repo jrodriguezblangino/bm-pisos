@@ -1012,7 +1012,9 @@ html .scroll-fade.is-in {
   border: 1px solid rgb(244 241 235 / 0.16);
   background: rgb(20 18 16 / 0.9);
   box-shadow: 0 16px 32px rgb(0 0 0 / 0.22);
-  transition: transform 400ms cubic-bezier(0.23, 1, 0.32, 1);
+  --craft-ease: cubic-bezier(0.5, 1, 0.89, 1);
+  --craft-open: 480ms;
+  transition: transform var(--craft-open) var(--craft-ease);
 }
 
 .craft-plate-face::before {
@@ -1024,7 +1026,7 @@ html .scroll-fade.is-in {
   height: 2px;
   background: var(--color-orange);
   transform-origin: left center;
-  transition: transform 400ms cubic-bezier(0.23, 1, 0.32, 1);
+  transition: transform var(--craft-open) var(--craft-ease);
 }
 
 .craft-plate-index {
@@ -1076,7 +1078,7 @@ html .scroll-fade.is-in {
   grid-column: 2;
   grid-row: 2;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 400ms cubic-bezier(0.23, 1, 0.32, 1);
+  transition: grid-template-rows var(--craft-open) var(--craft-ease);
 }
 
 .craft-plate-face.is-open .craft-plate-more {
@@ -1095,7 +1097,7 @@ html .scroll-fade.is-in {
   font-size: 1.0625rem;
   line-height: 1.45;
   opacity: 0;
-  transition: opacity 400ms cubic-bezier(0.23, 1, 0.32, 1);
+  transition: opacity var(--craft-open) var(--craft-ease);
 }
 
 .craft-plate-face.is-open .craft-plate-body {
