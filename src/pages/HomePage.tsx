@@ -466,7 +466,7 @@ export function HomePage() {
               return (
                 <article
                   key={item.title}
-                  className={`craft-plate scroll-fade${expanded ? " is-open" : ""}`}
+                  className="craft-plate scroll-fade"
                   onPointerEnter={(event) => {
                     if (event.pointerType !== "mouse") return;
                     setCapability(index);
@@ -491,7 +491,7 @@ export function HomePage() {
                     craftTouch.current.moved = true;
                   }}
                 >
-                  <div className="craft-plate-face">
+                  <div className={`craft-plate-face${expanded ? " is-open" : ""}`}>
                     <p className="craft-plate-index">{String(index + 1).padStart(2, "0")}</p>
                     <h3 className="craft-plate-title">
                       <button
