@@ -223,10 +223,11 @@ export function Header() {
           </nav>
           <Link
             to="/contact"
+            aria-current={pathname === "/contact" ? "page" : undefined}
             className="inline-flex items-center rounded-[4px] bg-orange px-6 py-4 font-heading text-[16px] font-semibold uppercase leading-none text-tan transition-colors hover:bg-[#c2410e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
           >
             <span className="letter-link">
-              <RiseLabel text="Consultar" />
+              <RiseLabel text="Contacto" />
             </span>
           </Link>
         </div>
@@ -255,8 +256,8 @@ export function Header() {
               {item.label}
             </Link>
           ))}
-          <Link to="/contact" className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2]" onClick={() => setOpen(false)}>
-            Consultar
+          <Link to="/contact" aria-current={pathname === "/contact" ? "page" : undefined} className="font-heading text-[2.5rem] font-semibold uppercase leading-[1.2]" onClick={() => setOpen(false)}>
+            Contacto
           </Link>
         </nav>
       </div>

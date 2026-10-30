@@ -98,7 +98,7 @@ export function ServicesPage() {
                 </ul>
               )}
               <Button href="/contact" className="group mt-8">
-                <SlideLabel>Consultar</SlideLabel>
+                <SlideLabel>Contacto</SlideLabel>
               </Button>
             </div>
             <img src={active.image} alt={active.imageAlt} className="order-first h-[16.5rem] w-full object-cover min-[768px]:h-[22rem] min-[992px]:order-none min-[992px]:h-[37.5rem]" />

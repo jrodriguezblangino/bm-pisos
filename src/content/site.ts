@@ -129,10 +129,9 @@ export const yearsPlates: YearsPlate[] = [
 ];
 
 export const nav = [
-  { label: "Oficio", href: "/about" },
+  { label: "Nosotros", href: "/about" },
   { label: "Servicios", href: "/services" },
-  { label: "Obras", href: "/projects" },
-  { label: "Contacto", href: "/contact" },
+  { label: "Proyectos", href: "/projects" },
 ];
 
 export const footerColumns = [
@@ -140,7 +139,7 @@ export const footerColumns = [
     index: "01",
     title: "Empresa",
     links: [
-      { label: "El oficio", href: "/about" },
+      { label: "Nosotros", href: "/about" },
       { label: "Cómo trabajamos", href: "/about#our-values" },
       { label: "Tercera generación", href: "/about" },
       { label: "Zona de trabajo", href: "/cobertura" },
@@ -160,7 +159,7 @@ export const footerColumns = [
     index: "03",
     title: "Sitio",
     links: [
-      { label: "Tipos de obra", href: "/projects" },
+      { label: "Proyectos", href: "/projects" },
       { label: "Trabajar con BMP", href: "/careers" },
       { label: "Contacto", href: "/contact" },
     ],
